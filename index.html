@@ -1,7 +1,47 @@
-<iframe width="560" height="315" src="
-  https://www.youtube.com/embed/x2yV2gK7_l0?si=RYq6Inl57qtEEn65
-  &autoplay=1&mute=0" title="YouTube video player" frameborder="0" 
-  allow="accelerometer; autoplay; clipboard-write; encrypted-media; 
-  gyroscope; picture-in-picture; web-share" 
-  referrerpolicy="strict-origin-when-cross-origin" allowfullscreen>
-</iframe>
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>GPS 업로드</title>
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+    // 🔑 Firebase 설정
+    const firebaseConfig = {
+      apiKey: "AIzaSyAQGtOEcxFxl9FV7NASLgxLDc23u2vzS_0",
+      authDomain: "mygps-11798.firebaseapp.com",
+      databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
+      projectId: "mygps-11798",
+      storageBucket: "mygps-11798.firebasestorage.app",
+      messagingSenderId: "271371741627",
+      appId: "1:271371741627:web:743d6d9c745585d980bc9e"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
+
+    function uploadLocation(lat, lng) {
+      set(ref(db, "location/current"), {
+        lat: lat,
+        lng: lng,
+        timestamp: Date.now()
+      });
+    }
+
+    // GPS 추적
+    if (navigator.geolocation) {
+      navigator.geolocation.watchPosition(
+        (pos) => uploadLocation(pos.coords.latitude, pos.coords.longitude),
+        (err) => console.error(err),
+        { enableHighAccuracy: true }
+      );
+    } else {
+      alert("GPS를 지원하지 않는 기기입니다.");
+    }
+  </script>
+</head>
+<body>
+  <h2>📍 내 위치 Firebase 업로드 중...</h2>
+</body>
+</html>
