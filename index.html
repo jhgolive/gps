@@ -102,7 +102,7 @@ window.onload = function() {
   const radiusIncrement = 10;
   const zoomIncrement = 1;
   const intervalDelay = 300; // 반복 속도 (ms)
-  const startDelay = 500; // 누르고 시작 대기 시간 (ms)
+  const startDelay = 500;    // 누르고 시작 대기 시간 (ms)
 
   function changeZoom(delta) { window.mapLevel = Math.max(1, window.mapLevel + delta); updateDisplays(); }
   function changeRadius(delta) { 
@@ -113,7 +113,13 @@ window.onload = function() {
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
-    const startChange = () => { func(delta); interval = setInterval(() => func(delta), intervalDelay); };
+
+    const startChange = () => { interval = setInterval(() => func(delta), intervalDelay); };
+
+    // 클릭 시 즉시 변화
+    button.addEventListener('click', () => func(delta));
+
+    // 누르고 있으면 일정 시간 후 반복
     button.addEventListener('mousedown', () => { timeout = setTimeout(startChange, startDelay); });
     button.addEventListener('mouseup', () => { clearTimeout(timeout); clearInterval(interval); });
     button.addEventListener('mouseleave', () => { clearTimeout(timeout); clearInterval(interval); });
@@ -122,14 +128,10 @@ window.onload = function() {
   }
 
   // Zoom 버튼
-  zoomInBtn.addEventListener('click', () => changeZoom(-zoomIncrement));
-  zoomOutBtn.addEventListener('click', () => changeZoom(zoomIncrement));
   addHoldEvent(zoomInBtn, -zoomIncrement, changeZoom);
   addHoldEvent(zoomOutBtn, zoomIncrement, changeZoom);
 
   // Radius 버튼
-  rounderInBtn.addEventListener('click', () => changeRadius(radiusIncrement));
-  rounderOutBtn.addEventListener('click', () => changeRadius(-radiusIncrement));
   addHoldEvent(rounderInBtn, radiusIncrement, changeRadius);
   addHoldEvent(rounderOutBtn, -radiusIncrement, changeRadius);
 
