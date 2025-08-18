@@ -7,15 +7,15 @@
   <style>
     body {
       margin: 0;
-      padding: 0;
+      padding: 20px 10px;
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
-      height: 100vh;
+      min-height: 100vh;
       background: #f0f0f0;
-      color: #333333; /* 글자 어두운 회색 */
+      color: #333333;
       text-align: center;
       box-sizing: border-box;
     }
@@ -31,28 +31,24 @@
       font-size: 60px;
       font-weight: bold;
       color: #333333;
-      margin-bottom: 20px;
+      margin-bottom: 5px; /* 버튼과 가까이 붙이기 위해 감소 */
     }
 
     .buttons {
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
       display: flex;
-      width: 90%;
-      max-width: 500px;
       gap: 2px;
+      width: 66%;
+      max-width: 500px;
     }
 
     button {
       flex: 1 1 0;
-      font-size: 72px;   /* 글자 크게 */
+      font-size: 72px;
       padding: 20px 0;
       border: none;
       border-radius: 8px;
-      background: #000033; /* 어두운 남색 */
-      color: #333333;       /* 글자 어두운 회색 */
+      background: #000033;
+      color: #333333;
       cursor: pointer;
       touch-action: manipulation;
       user-select: none;
