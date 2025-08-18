@@ -101,11 +101,8 @@ window.onload = function() {
 
   const radiusIncrement = 10;
   const zoomIncrement = 1;
-
-  let intervalZoomIn = null;
-  let intervalZoomOut = null;
-  let intervalRadiusIn = null;
-  let intervalRadiusOut = null;
+  const intervalDelay = 300; // 반복 속도 (ms)
+  const startDelay = 500; // 누르고 시작 대기 시간 (ms)
 
   function changeZoom(delta) { window.mapLevel = Math.max(1, window.mapLevel + delta); updateDisplays(); }
   function changeRadius(delta) { 
@@ -113,33 +110,28 @@ window.onload = function() {
     updateDisplays();
   }
 
-  // Zoom 버튼 이벤트
+  function addHoldEvent(button, delta, func) {
+    let interval = null;
+    let timeout = null;
+    const startChange = () => { func(delta); interval = setInterval(() => func(delta), intervalDelay); };
+    button.addEventListener('mousedown', () => { timeout = setTimeout(startChange, startDelay); });
+    button.addEventListener('mouseup', () => { clearTimeout(timeout); clearInterval(interval); });
+    button.addEventListener('mouseleave', () => { clearTimeout(timeout); clearInterval(interval); });
+    button.addEventListener('touchstart', (e) => { e.preventDefault(); timeout = setTimeout(startChange, startDelay); });
+    button.addEventListener('touchend', () => { clearTimeout(timeout); clearInterval(interval); });
+  }
+
+  // Zoom 버튼
   zoomInBtn.addEventListener('click', () => changeZoom(-zoomIncrement));
   zoomOutBtn.addEventListener('click', () => changeZoom(zoomIncrement));
-  zoomInBtn.addEventListener('mousedown', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
-  zoomOutBtn.addEventListener('mousedown', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
-  zoomInBtn.addEventListener('mouseup', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('mouseup', () => clearInterval(intervalZoomOut));
-  zoomInBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomOut));
-  zoomInBtn.addEventListener('touchstart', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
-  zoomOutBtn.addEventListener('touchstart', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
-  zoomInBtn.addEventListener('touchend', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('touchend', () => clearInterval(intervalZoomOut));
+  addHoldEvent(zoomInBtn, -zoomIncrement, changeZoom);
+  addHoldEvent(zoomOutBtn, zoomIncrement, changeZoom);
 
-  // Radius 버튼 이벤트
+  // Radius 버튼
   rounderInBtn.addEventListener('click', () => changeRadius(radiusIncrement));
   rounderOutBtn.addEventListener('click', () => changeRadius(-radiusIncrement));
-  rounderInBtn.addEventListener('mousedown', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
-  rounderOutBtn.addEventListener('mousedown', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
-  rounderInBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusOut));
-  rounderInBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusOut));
-  rounderInBtn.addEventListener('touchstart', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
-  rounderOutBtn.addEventListener('touchstart', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
-  rounderInBtn.addEventListener('touchend', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('touchend', () => clearInterval(intervalRadiusOut));
+  addHoldEvent(rounderInBtn, radiusIncrement, changeRadius);
+  addHoldEvent(rounderOutBtn, -radiusIncrement, changeRadius);
 
   // GPS 업로드
   if(navigator.geolocation){
