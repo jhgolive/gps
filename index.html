@@ -5,14 +5,20 @@
   <title>GPS 업로드</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 20px; }
+    .control-buttons {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
+    }
     button { 
-      font-size: 24px;
+      font-size: 36px;        /* 훨씬 큰 버튼 */
       margin: 10px;
-      padding: 15px 25px;
-      border-radius: 10px;
+      padding: 20px 40px;     /* 터치 영역 확대 */
+      border-radius: 12px;
       cursor: pointer;
     }
-    #level-display { font-size: 20px; font-weight: bold; }
+    #level-display { font-size: 24px; font-weight: bold; display: block; margin-top: 10px; }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -31,6 +37,7 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
+    // 전송 레벨 (전역)
     window.mapLevel = 4;
 
     function uploadLocation(lat, lng) {
@@ -43,6 +50,7 @@
     }
 
     window.onload = function() {
+      // GPS 업로드
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (pos) => uploadLocation(pos.coords.latitude, pos.coords.longitude),
@@ -53,26 +61,30 @@
         alert("GPS를 지원하지 않는 기기입니다.");
       }
 
-      document.getElementById('zoom-in').onclick = () => {
-        if (window.mapLevel > 1) window.mapLevel--;
-      };
-      document.getElementById('zoom-out').onclick = () => {
-        window.mapLevel++;
-      };
+      // 버튼 이벤트
+      const zoomInBtn = document.getElementById('zoom-in');
+      const zoomOutBtn = document.getElementById('zoom-out');
+      const levelDisplay = document.getElementById('level-display');
+
+      zoomInBtn.onclick = () => { if (window.mapLevel > 1) window.mapLevel--; updateLevelDisplay(); };
+      zoomOutBtn.onclick = () => { window.mapLevel++; updateLevelDisplay(); };
+
+      function updateLevelDisplay() {
+        levelDisplay.textContent = window.mapLevel;
+      }
+
+      // 초기 표시
+      updateLevelDisplay();
     };
   </script>
 </head>
 <body>
   <h2>📍 GPS 업로드 중...</h2>
-  <div>
+
+  <div class="control-buttons">
     <button id="zoom-in">🔍 확대</button>
     <button id="zoom-out">🔎 축소</button>
-    <p>현재 전송 레벨: <span id="level-display">4</span></p>
+    <span id="level-display">4</span>
   </div>
-
-  <script>
-    const levelDisplay = document.getElementById('level-display');
-    setInterval(() => levelDisplay.textContent = window.mapLevel, 200);
-  </script>
 </body>
 </html>
