@@ -19,35 +19,12 @@
       text-align: center;
       box-sizing: border-box;
     }
-    #status-text {
-      font-size: 24px;
-      font-weight: bold;
-      margin-bottom: 20px;
-      color: #333333;
-    }
-    #level-display {
-      font-size: 60px;
-      font-weight: bold;
-      color: #333333;
-      margin-bottom: 5px;
-    }
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 2px;
-      margin-bottom: 20px;
-    }
+    #status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; color: #333333; }
+    #level-display { font-size: 60px; font-weight: bold; color: #333333; margin-bottom: 5px; }
+    .buttons { display: flex; justify-content: center; gap: 2px; margin-bottom: 20px; }
     button {
-      width: 100px;
-      height: 100px;
-      font-size: 60px;
-      border: none;
-      border-radius: 8px;
-      background: #000033;
-      color: #fff;
-      cursor: pointer;
-      touch-action: manipulation;
-      user-select: none;
+      width: 100px; height: 100px; font-size: 60px; border: none; border-radius: 8px;
+      background: #000033; color: #fff; cursor: pointer; touch-action: manipulation; user-select: none;
     }
     button:active { background: #000022; }
   </style>
@@ -70,6 +47,7 @@
 
     window.mapLevel = 4;
     let prevPos = null; // 이전 좌표 저장
+    const MIN_MOVE = 0.00005; // 최소 이동 거리 (위도/경도 단위)
 
     function calculateHeading(lat1, lng1, lat2, lng2) {
       const dLon = (lng2 - lng1) * Math.PI / 180;
@@ -79,6 +57,10 @@
       let brng = Math.atan2(y, x) * 180 / Math.PI;
       brng = (brng + 360) % 360;
       return brng;
+    }
+
+    function distance(lat1, lng1, lat2, lng2) {
+      return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
     }
 
     function uploadLocation(lat, lng, heading) {
@@ -96,9 +78,7 @@
       const zoomInBtn = document.getElementById('zoom-in');
       const zoomOutBtn = document.getElementById('zoom-out');
 
-      function updateLevelDisplay() {
-        levelDisplay.textContent = window.mapLevel;
-      }
+      function updateLevelDisplay() { levelDisplay.textContent = window.mapLevel; }
       updateLevelDisplay();
 
       zoomInBtn.onclick = () => { if (window.mapLevel > 1) window.mapLevel--; updateLevelDisplay(); };
@@ -108,15 +88,23 @@
         navigator.geolocation.watchPosition(
           (pos) => {
             let heading = pos.coords.heading;
-            if (heading === null || heading === 0) {
-              // 이전 좌표가 있으면 이동 방향 계산
-              if (prevPos) {
-                heading = calculateHeading(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+
+            if (prevPos) {
+              const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+              if (moveDist >= MIN_MOVE) {
+                // heading이 null/0이면 이전 좌표로 계산
+                if (heading === null || heading === 0) {
+                  heading = calculateHeading(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+                }
+                prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
               } else {
-                heading = 0;
+                // 이동 거리가 작으면 heading 유지
+                heading = heading || prevPos.heading || 0;
               }
+            } else {
+              prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude, heading: heading || 0 };
             }
-            prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+
             uploadLocation(pos.coords.latitude, pos.coords.longitude, heading);
           },
           (err) => console.error(err),
