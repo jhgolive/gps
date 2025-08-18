@@ -25,24 +25,13 @@
       padding: 20px 10px;
       box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
       display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    #level-display {
-      font-size: 28px;
-      font-weight: bold;
-      margin-bottom: 10px;
-    }
-    .control-buttons {
-      display: flex;
       justify-content: center;
+      align-items: center;
       gap: 20px;
-      width: 100%;
     }
     button {
-      flex: 1;
       font-size: 32px;
-      padding: 25px 0;
+      padding: 25px 40px;
       border-radius: 12px;
       border: none;
       background: #4CAF50;
@@ -50,9 +39,16 @@
       cursor: pointer;
       touch-action: manipulation;
       user-select: none;
+      flex: 0 0 auto;
     }
     button:active {
       background: #45a049;
+    }
+    #level-display {
+      font-size: 28px;
+      font-weight: bold;
+      min-width: 50px;
+      text-align: center;
     }
   </style>
   <script type="module">
@@ -92,14 +88,11 @@
         levelDisplay.textContent = window.mapLevel;
       }
 
-      // 초기 표시
       updateLevelDisplay();
 
-      // 버튼 이벤트
       zoomInBtn.onclick = () => { if (window.mapLevel > 1) window.mapLevel--; updateLevelDisplay(); };
       zoomOutBtn.onclick = () => { window.mapLevel++; updateLevelDisplay(); };
 
-      // GPS 업로드
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (pos) => uploadLocation(pos.coords.latitude, pos.coords.longitude),
@@ -116,11 +109,9 @@
   <h2>📍 GPS 업로드 중...</h2>
 
   <div class="control-container">
+    <button id="zoom-in">🔍 확대</button>
     <span id="level-display">4</span>
-    <div class="control-buttons">
-      <button id="zoom-in">🔍 확대</button>
-      <button id="zoom-out">🔎 축소</button>
-    </div>
+    <button id="zoom-out">🔎 축소</button>
   </div>
 </body>
 </html>
