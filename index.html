@@ -27,16 +27,16 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      gap: 0; /* 버튼 바짝 붙이기 */
+      gap: 5px; /* 버튼 간격 더 붙임 */
       box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
     }
 
     button {
-      font-size: 36px;
-      padding: 25px 40px;
-      border-radius: 0; /* 바짝 붙일 때 모서리 둥글기 제거 */
+      font-size: 48px;          /* 글자 더 크게 */
+      padding: 30px 50px;
+      border-radius: 0;
       border: none;
-      background: #1E90FF; /* 버튼 색상 변경 */
+      background: #00008B;      /* 진한 남색 */
       color: white;
       cursor: pointer;
       touch-action: manipulation;
@@ -45,11 +45,11 @@
     }
 
     button:active {
-      background: #187bcd; /* 누를 때 색상 */
+      background: #000060;       /* 누를 때 조금 더 진한 색 */
     }
 
     #level-display {
-      font-size: 28px;
+      font-size: 32px;           /* 레벨 표시 글자 키움 */
       font-weight: bold;
       min-width: 50px;
       text-align: center;
