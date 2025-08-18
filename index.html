@@ -17,6 +17,7 @@
       background: #f0f0f0;
       color: #333333; /* 글자 어두운 회색 */
       text-align: center;
+      box-sizing: border-box;
     }
 
     #status-text {
@@ -29,15 +30,19 @@
     #level-display {
       font-size: 60px;
       font-weight: bold;
-      margin-bottom: 40px;
       color: #333333;
+      margin-bottom: 20px;
     }
 
     .buttons {
+      position: fixed;
+      bottom: 20px;
+      left: 50%;
+      transform: translateX(-50%);
       display: flex;
-      width: 100%;
+      width: 90%;
       max-width: 500px;
-      gap: 2px; /* 버튼 붙임 */
+      gap: 2px;
     }
 
     button {
@@ -115,6 +120,7 @@
 
   <div id="status-text">📍 GPS 업로드 중...</div>
   <div id="level-display">4</div>
+
   <div class="buttons">
     <button id="zoom-in">+</button>
     <button id="zoom-out">-</button>
