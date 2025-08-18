@@ -2,7 +2,7 @@
 <html>
 <head>
   <meta charset="utf-8">
-  <title>GPS 업로드 + 레벨 제어</title>
+  <title>GPS 업로드</title>
   <style>
     body { font-family: sans-serif; text-align: center; padding: 20px; }
     button { font-size: 16px; margin: 5px; padding: 5px 10px; }
@@ -24,20 +24,20 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 기본 레벨
+    // 현재 확대/축소 레벨
     let mapLevel = 4;
 
     function uploadLocation(lat, lng) {
       set(ref(db, "location/current"), {
         lat: lat,
         lng: lng,
-        level: mapLevel,      // 확대/축소 레벨도 전송
+        level: mapLevel,
         timestamp: Date.now()
       });
     }
 
     window.onload = function() {
-      // GPS 업로드
+      // GPS 추적
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (pos) => uploadLocation(pos.coords.latitude, pos.coords.longitude),
@@ -50,10 +50,10 @@
 
       // 버튼 이벤트
       document.getElementById('zoom-in').onclick = () => {
-        if(mapLevel > 1) mapLevel--;  // 확대
+        if (mapLevel > 1) mapLevel--;
       };
       document.getElementById('zoom-out').onclick = () => {
-        mapLevel++; // 축소
+        mapLevel++;
       };
     };
   </script>
@@ -67,7 +67,6 @@
   </div>
 
   <script>
-    // 레벨 표시 업데이트
     const levelDisplay = document.getElementById('level-display');
     setInterval(() => levelDisplay.textContent = window.mapLevel || 4, 200);
   </script>
