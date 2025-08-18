@@ -55,9 +55,9 @@
 
     window.mapLevel = 4;
     window.borderRadius = 0;
+    const MAX_RADIUS = 160;
     let prevPos = null;
     const MIN_MOVE = 0.00005;
-    const MAX_RADIUS = 160;
 
     function calculateHeading(lat1, lng1, lat2, lng2) {
       const dLon = (lng2 - lng1) * Math.PI / 180;
@@ -74,9 +74,7 @@
 
     function uploadLocation(lat, lng, heading) {
       set(ref(db, "location/current"), {
-        lat: lat,
-        lng: lng,
-        heading: heading,
+        lat, lng, heading,
         level: window.mapLevel,
         borderRadius: window.borderRadius,
         timestamp: Date.now()
@@ -101,28 +99,29 @@
       zoomInBtn.onclick = () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); };
       zoomOutBtn.onclick = () => { window.mapLevel++; updateDisplays(); };
 
-      // 테두리 증가/감소 연속 적용
-      let rounderInterval = null;
+      // 연속 증가/감소
+      let interval = null;
 
       rounderInBtn.addEventListener('mousedown', () => {
-        rounderInterval = setInterval(() => {
+        interval = setInterval(() => {
           window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + 5);
           updateDisplays();
         }, 100);
       });
-      rounderInBtn.addEventListener('mouseup', () => clearInterval(rounderInterval));
-      rounderInBtn.addEventListener('mouseleave', () => clearInterval(rounderInterval));
+      rounderInBtn.addEventListener('mouseup', () => clearInterval(interval));
+      rounderInBtn.addEventListener('mouseleave', () => clearInterval(interval));
 
       rounderOutBtn.addEventListener('mousedown', () => {
-        rounderInterval = setInterval(() => {
+        interval = setInterval(() => {
           window.borderRadius = Math.max(0, window.borderRadius - 5);
           updateDisplays();
         }, 100);
       });
-      rounderOutBtn.addEventListener('mouseup', () => clearInterval(rounderInterval));
-      rounderOutBtn.addEventListener('mouseleave', () => clearInterval(rounderInterval));
+      rounderOutBtn.addEventListener('mouseup', () => clearInterval(interval));
+      rounderOutBtn.addEventListener('mouseleave', () => clearInterval(interval));
 
-      if(navigator.geolocation) {
+      // GPS 업로드
+      if(navigator.geolocation){
         navigator.geolocation.watchPosition(
           (pos) => {
             let heading = pos.coords.heading;
