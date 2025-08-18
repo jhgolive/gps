@@ -69,8 +69,19 @@
     const db = getDatabase(app);
 
     window.mapLevel = 4;
+    let prevPos = null; // 이전 좌표 저장
 
-    function uploadLocation(lat, lng, heading = 0) {
+    function calculateHeading(lat1, lng1, lat2, lng2) {
+      const dLon = (lng2 - lng1) * Math.PI / 180;
+      const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+      const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+      let brng = Math.atan2(y, x) * 180 / Math.PI;
+      brng = (brng + 360) % 360;
+      return brng;
+    }
+
+    function uploadLocation(lat, lng, heading) {
       set(ref(db, "location/current"), {
         lat: lat,
         lng: lng,
@@ -96,8 +107,16 @@
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
           (pos) => {
-            // heading이 undefined이면 0으로 처리
-            const heading = pos.coords.heading !== null ? pos.coords.heading : 0;
+            let heading = pos.coords.heading;
+            if (heading === null || heading === 0) {
+              // 이전 좌표가 있으면 이동 방향 계산
+              if (prevPos) {
+                heading = calculateHeading(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+              } else {
+                heading = 0;
+              }
+            }
+            prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
             uploadLocation(pos.coords.latitude, pos.coords.longitude, heading);
           },
           (err) => console.error(err),
