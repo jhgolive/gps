@@ -16,10 +16,10 @@ body {
   min-height: 100vh;
   background: #f0f0f0;
   text-align: center;
-  user-select: none; /* 전체 선택 방지 */
+  user-select: none;
 }
 #status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
-.buttons { display: flex; gap: 10px; margin-top: 20px; }
+.buttons { display: flex; gap: 15px; margin-top: 20px; }
 .btn-container {
   display: flex;
   flex-direction: column;
@@ -30,12 +30,13 @@ body {
   font-size: 16px;
   font-weight: bold;
   color: #333;
-  user-select: none; /* 글자 선택 방지 */
+  user-select: none;
 }
 .buttons button {
   width: 60px; height: 60px; font-size: 32px;
   border: none; border-radius: 8px; background: #000033; color: #fff; cursor: pointer;
-  user-select: none; /* 버튼 글자 선택 방지 */
+  user-select: none;
+  margin-bottom: 5px;
 }
 .buttons button:active { background: #000022; }
 </style>
@@ -48,7 +49,7 @@ const firebaseConfig = {
   authDomain: "mygps-11798.firebaseapp.com",
   databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mygps-11798",
-  storageBucket: "mygps-11798.firebasedatabase.app",
+  storageBucket: "mygps-11798.firebasestorage.app",
   messagingSenderId: "271371741627",
   appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
 };
@@ -98,43 +99,47 @@ window.onload = function() {
   }
   updateDisplays();
 
+  const zoomIncrement = 1;
+  const radiusIncrement = 10;
+
+  let intervalZoomIn = null;
+  let intervalZoomOut = null;
+  let intervalRadiusIn = null;
+  let intervalRadiusOut = null;
+
+  function changeZoom(delta) { window.mapLevel = Math.max(1, window.mapLevel + delta); updateDisplays(); }
+  function changeRadius(delta) { 
+    window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
+    updateDisplays();
+  }
+
   // Zoom 버튼
-  zoomInBtn.onclick = () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); };
-  zoomOutBtn.onclick = () => { window.mapLevel++; updateDisplays(); };
+  zoomInBtn.addEventListener('click', () => changeZoom(-zoomIncrement));
+  zoomOutBtn.addEventListener('click', () => changeZoom(zoomIncrement));
+  zoomInBtn.addEventListener('mousedown', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
+  zoomOutBtn.addEventListener('mousedown', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
+  zoomInBtn.addEventListener('mouseup', () => clearInterval(intervalZoomIn));
+  zoomOutBtn.addEventListener('mouseup', () => clearInterval(intervalZoomOut));
+  zoomInBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomIn));
+  zoomOutBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomOut));
+  zoomInBtn.addEventListener('touchstart', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
+  zoomOutBtn.addEventListener('touchstart', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
+  zoomInBtn.addEventListener('touchend', () => clearInterval(intervalZoomIn));
+  zoomOutBtn.addEventListener('touchend', () => clearInterval(intervalZoomOut));
 
-  // ○/□ 버튼 값 변경: 한 번 클릭에도 변화
-  const increment = 10;
-
-  const startIncrease = () => { 
-    window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment);
-    updateDisplays();
-    intervalIn = setInterval(() => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment); updateDisplays(); }, 100); 
-  }
-  const stopIncrease = () => { clearInterval(intervalIn); }
-
-  const startDecrease = () => { 
-    window.borderRadius = Math.max(0, window.borderRadius - increment);
-    updateDisplays();
-    intervalOut = setInterval(() => { window.borderRadius = Math.max(0, window.borderRadius - increment); updateDisplays(); }, 100); 
-  }
-  const stopDecrease = () => { clearInterval(intervalOut); }
-
-  let intervalIn = null;
-  let intervalOut = null;
-
-  rounderInBtn.addEventListener('mousedown', startIncrease);
-  rounderInBtn.addEventListener('mouseup', stopIncrease);
-  rounderInBtn.addEventListener('mouseleave', stopIncrease);
-  rounderInBtn.addEventListener('touchstart', startIncrease);
-  rounderInBtn.addEventListener('touchend', stopIncrease);
-  rounderInBtn.addEventListener('click', () => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment); updateDisplays(); });
-
-  rounderOutBtn.addEventListener('mousedown', startDecrease);
-  rounderOutBtn.addEventListener('mouseup', stopDecrease);
-  rounderOutBtn.addEventListener('mouseleave', stopDecrease);
-  rounderOutBtn.addEventListener('touchstart', startDecrease);
-  rounderOutBtn.addEventListener('touchend', stopDecrease);
-  rounderOutBtn.addEventListener('click', () => { window.borderRadius = Math.max(0, window.borderRadius - increment); updateDisplays(); });
+  // Radius 버튼
+  rounderInBtn.addEventListener('click', () => changeRadius(radiusIncrement));
+  rounderOutBtn.addEventListener('click', () => changeRadius(-radiusIncrement));
+  rounderInBtn.addEventListener('mousedown', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
+  rounderOutBtn.addEventListener('mousedown', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
+  rounderInBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusIn));
+  rounderOutBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusOut));
+  rounderInBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusIn));
+  rounderOutBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusOut));
+  rounderInBtn.addEventListener('touchstart', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
+  rounderOutBtn.addEventListener('touchstart', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
+  rounderInBtn.addEventListener('touchend', () => clearInterval(intervalRadiusIn));
+  rounderOutBtn.addEventListener('touchend', () => clearInterval(intervalRadiusOut));
 
   // GPS 업로드
   if(navigator.geolocation){
@@ -166,21 +171,16 @@ window.onload = function() {
 <body>
   <div id="status-text">📍 GPS 업로드 중...</div>
   <div class="buttons">
+    <!-- Zoom + / - -->
     <div class="btn-container">
       <div class="btn-label" id="level-label">4</div>
+      <button id="rounder-in">○</button>
       <button id="zoom-in">+</button>
     </div>
     <div class="btn-container">
       <div class="btn-label">&nbsp;</div>
-      <button id="zoom-out">-</button>
-    </div>
-    <div class="btn-container">
-      <div class="btn-label" id="radius-label">0</div>
-      <button id="rounder-in">○</button>
-    </div>
-    <div class="btn-container">
-      <div class="btn-label">&nbsp;</div>
       <button id="rounder-out">□</button>
+      <button id="zoom-out">-</button>
     </div>
   </div>
 </body>
