@@ -38,15 +38,13 @@
       display: flex;
       justify-content: center;
       gap: 2px;
-      width: 100%;
-      max-width: 260px; /* 버튼 전체 폭 조금 줄임 */
       margin-bottom: 20px;
     }
 
     button {
-      flex: 1 1 0;
+      width: 120px;   /* 폭 고정 */
+      height: 120px;  /* 높이 = 폭 → 정사각형 */
       font-size: 72px;
-      padding: 20px 0;
       border: none;
       border-radius: 8px;
       background: #000033;
@@ -54,8 +52,6 @@
       cursor: pointer;
       touch-action: manipulation;
       user-select: none;
-      min-width: 120px; /* 버튼 폭 줄임 */
-      max-width: 140px;
     }
 
     button:active {
