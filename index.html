@@ -16,6 +16,7 @@ body {
   min-height: 100vh;
   background: #f0f0f0;
   text-align: center;
+  user-select: none; /* 전체 선택 방지 */
 }
 #status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
 .buttons { display: flex; gap: 10px; margin-top: 20px; }
@@ -29,10 +30,12 @@ body {
   font-size: 16px;
   font-weight: bold;
   color: #333;
+  user-select: none; /* 글자 선택 방지 */
 }
 .buttons button {
   width: 60px; height: 60px; font-size: 32px;
   border: none; border-radius: 8px; background: #000033; color: #fff; cursor: pointer;
+  user-select: none; /* 버튼 글자 선택 방지 */
 }
 .buttons button:active { background: #000022; }
 </style>
@@ -95,30 +98,45 @@ window.onload = function() {
   }
   updateDisplays();
 
+  // Zoom 버튼
   zoomInBtn.onclick = () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); };
   zoomOutBtn.onclick = () => { window.mapLevel++; updateDisplays(); };
 
-  let intervalIn = null;
-  let intervalOut = null;
+  // ○/□ 버튼 값 변경: 한 번 클릭에도 변화
+  const increment = 10;
 
-  const startIncrease = () => { intervalIn = setInterval(() => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + 5); updateDisplays(); }, 100); }
+  const startIncrease = () => { 
+    window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment);
+    updateDisplays();
+    intervalIn = setInterval(() => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment); updateDisplays(); }, 100); 
+  }
   const stopIncrease = () => { clearInterval(intervalIn); }
 
-  const startDecrease = () => { intervalOut = setInterval(() => { window.borderRadius = Math.max(0, window.borderRadius - 5); updateDisplays(); }, 100); }
+  const startDecrease = () => { 
+    window.borderRadius = Math.max(0, window.borderRadius - increment);
+    updateDisplays();
+    intervalOut = setInterval(() => { window.borderRadius = Math.max(0, window.borderRadius - increment); updateDisplays(); }, 100); 
+  }
   const stopDecrease = () => { clearInterval(intervalOut); }
+
+  let intervalIn = null;
+  let intervalOut = null;
 
   rounderInBtn.addEventListener('mousedown', startIncrease);
   rounderInBtn.addEventListener('mouseup', stopIncrease);
   rounderInBtn.addEventListener('mouseleave', stopIncrease);
   rounderInBtn.addEventListener('touchstart', startIncrease);
   rounderInBtn.addEventListener('touchend', stopIncrease);
+  rounderInBtn.addEventListener('click', () => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + increment); updateDisplays(); });
 
   rounderOutBtn.addEventListener('mousedown', startDecrease);
   rounderOutBtn.addEventListener('mouseup', stopDecrease);
   rounderOutBtn.addEventListener('mouseleave', stopDecrease);
   rounderOutBtn.addEventListener('touchstart', startDecrease);
   rounderOutBtn.addEventListener('touchend', stopDecrease);
+  rounderOutBtn.addEventListener('click', () => { window.borderRadius = Math.max(0, window.borderRadius - increment); updateDisplays(); });
 
+  // GPS 업로드
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
