@@ -3,22 +3,57 @@
 <head>
   <meta charset="utf-8">
   <title>GPS 업로드</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; text-align: center; padding: 20px; }
-    .control-buttons {
+    body {
+      font-family: sans-serif;
+      text-align: center;
+      margin: 0;
+      padding: 20px 10px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      height: 100vh;
+      box-sizing: border-box;
+    }
+    .control-container {
+      width: 100%;
       position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
+      bottom: 0;
+      left: 0;
+      background: rgba(255, 255, 255, 0.9);
+      padding: 20px 10px;
+      box-shadow: 0 -2px 8px rgba(0,0,0,0.2);
+      display: flex;
+      flex-direction: column;
+      align-items: center;
     }
-    button { 
-      font-size: 36px;        /* 훨씬 큰 버튼 */
-      margin: 10px;
-      padding: 20px 40px;     /* 터치 영역 확대 */
+    #level-display {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 10px;
+    }
+    .control-buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      width: 100%;
+    }
+    button {
+      flex: 1;
+      font-size: 32px;
+      padding: 25px 0;
       border-radius: 12px;
+      border: none;
+      background: #4CAF50;
+      color: white;
       cursor: pointer;
+      touch-action: manipulation;
+      user-select: none;
     }
-    #level-display { font-size: 24px; font-weight: bold; display: block; margin-top: 10px; }
+    button:active {
+      background: #45a049;
+    }
   </style>
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -37,7 +72,6 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // 전송 레벨 (전역)
     window.mapLevel = 4;
 
     function uploadLocation(lat, lng) {
@@ -50,6 +84,21 @@
     }
 
     window.onload = function() {
+      const levelDisplay = document.getElementById('level-display');
+      const zoomInBtn = document.getElementById('zoom-in');
+      const zoomOutBtn = document.getElementById('zoom-out');
+
+      function updateLevelDisplay() {
+        levelDisplay.textContent = window.mapLevel;
+      }
+
+      // 초기 표시
+      updateLevelDisplay();
+
+      // 버튼 이벤트
+      zoomInBtn.onclick = () => { if (window.mapLevel > 1) window.mapLevel--; updateLevelDisplay(); };
+      zoomOutBtn.onclick = () => { window.mapLevel++; updateLevelDisplay(); };
+
       // GPS 업로드
       if (navigator.geolocation) {
         navigator.geolocation.watchPosition(
@@ -60,31 +109,18 @@
       } else {
         alert("GPS를 지원하지 않는 기기입니다.");
       }
-
-      // 버튼 이벤트
-      const zoomInBtn = document.getElementById('zoom-in');
-      const zoomOutBtn = document.getElementById('zoom-out');
-      const levelDisplay = document.getElementById('level-display');
-
-      zoomInBtn.onclick = () => { if (window.mapLevel > 1) window.mapLevel--; updateLevelDisplay(); };
-      zoomOutBtn.onclick = () => { window.mapLevel++; updateLevelDisplay(); };
-
-      function updateLevelDisplay() {
-        levelDisplay.textContent = window.mapLevel;
-      }
-
-      // 초기 표시
-      updateLevelDisplay();
     };
   </script>
 </head>
 <body>
   <h2>📍 GPS 업로드 중...</h2>
 
-  <div class="control-buttons">
-    <button id="zoom-in">🔍 확대</button>
-    <button id="zoom-out">🔎 축소</button>
+  <div class="control-container">
     <span id="level-display">4</span>
+    <div class="control-buttons">
+      <button id="zoom-in">🔍 확대</button>
+      <button id="zoom-out">🔎 축소</button>
+    </div>
   </div>
 </body>
 </html>
