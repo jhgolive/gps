@@ -7,27 +7,24 @@
   <style>
     body {
       margin: 0;
-      padding: 10px;
+      padding: 20px 10px;
       font-family: sans-serif;
       display: flex;
       flex-direction: column;
+      justify-content: center;
       align-items: center;
+      min-height: 100vh;
       background: #f0f0f0;
       color: #333333;
       text-align: center;
       box-sizing: border-box;
-      min-height: 100vh;
     }
 
     #status-text {
       font-size: 28px;
       font-weight: bold;
-      color: #333333;
       margin-bottom: 20px;
-      position: fixed;
-      top: 10px;
-      left: 50%;
-      transform: translateX(-50%);
+      color: #333333;
     }
 
     #level-display {
@@ -35,13 +32,12 @@
       font-weight: bold;
       color: #333333;
       margin-bottom: 5px; /* 버튼과 가까이 */
-      margin-top: 80px;   /* 상단 글자와 겹치지 않도록 여백 */
     }
 
     .buttons {
       display: flex;
       gap: 2px;
-      width: 300px; /* 고정 폭 */
+      width: 300px; /* 버튼 폭 고정 */
       margin-bottom: 20px;
     }
 
