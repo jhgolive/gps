@@ -6,59 +6,47 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
     body {
-      font-family: sans-serif;
       margin: 0;
-      padding: 20px 10px;
+      padding: 0;
+      font-family: sans-serif;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start;
-      min-height: 100vh;
-      box-sizing: border-box;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
       background: #f0f0f0;
       color: #333333; /* 글자 어두운 회색 */
       text-align: center;
     }
 
-    .control-container {
-      width: 66%; /* 화면 가로 2/3 */
-      max-width: 500px;
-      position: fixed;
-      bottom: 20px;
-      left: 50%;
-      transform: translateX(-50%);
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      z-index: 2;
-      gap: 10px;
-    }
-
     #status-text {
-      font-size: 24px;
-      color: #333333;  /* 어두운 회색 */
-      margin-bottom: 10px;
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 20px;
+      color: #333333;
     }
 
     #level-display {
-      font-size: 40px;      /* 레벨 표시 크게 */
+      font-size: 60px;
       font-weight: bold;
-      color: #333333;       /* 어두운 회색 */
-      margin-bottom: 5px;
+      margin-bottom: 40px;
+      color: #333333;
     }
 
     .buttons {
       display: flex;
-      gap: 2px;             /* 버튼 붙임 */
       width: 100%;
+      max-width: 500px;
+      gap: 2px; /* 버튼 붙임 */
     }
 
     button {
       flex: 1 1 0;
-      font-size: 72px;      /* 글자 크게 */
+      font-size: 72px;   /* 글자 크게 */
       padding: 20px 0;
-      border-radius: 8px;
       border: none;
-      background: #000033;  /* 더 어두운 남색 */
+      border-radius: 8px;
+      background: #000033; /* 어두운 남색 */
       color: #333333;       /* 글자 어두운 회색 */
       cursor: pointer;
       touch-action: manipulation;
@@ -66,7 +54,7 @@
     }
 
     button:active {
-      background: #000022;  /* 누를 때 색상 */
+      background: #000022;
     }
   </style>
   <script type="module">
@@ -125,13 +113,11 @@
 </head>
 <body>
 
-  <div class="control-container">
-    <div id="status-text">📍 GPS 업로드 중...</div>
-    <div id="level-display">4</div>
-    <div class="buttons">
-      <button id="zoom-in">+</button>
-      <button id="zoom-out">-</button>
-    </div>
+  <div id="status-text">📍 GPS 업로드 중...</div>
+  <div id="level-display">4</div>
+  <div class="buttons">
+    <button id="zoom-in">+</button>
+    <button id="zoom-out">-</button>
   </div>
 
 </body>
