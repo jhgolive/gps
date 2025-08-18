@@ -12,21 +12,23 @@
       padding: 20px 10px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-start; 
+      justify-content: flex-start;
       min-height: 100vh;
       box-sizing: border-box;
       background: #f0f0f0;
-      color: #333333; /* 기본 글자 어두운 회색 */
+      color: #333333; /* 글자 어두운 회색 */
     }
 
     h2 {
       position: relative;
-      margin-bottom: 100px; /* 하단 버튼 공간 확보 */
-      color: #333333; /* 어두운 회색 */
+      margin-bottom: 120px; /* 하단 버튼 공간 확보 */
+      color: #333333; 
+      font-size: 24px;
     }
 
     .control-container {
-      width: 100%;
+      width: 66%; /* 화면 가로 2/3 */
+      max-width: 500px;
       position: fixed;
       bottom: 20px;
       left: 50%;
@@ -35,34 +37,32 @@
       justify-content: center;
       align-items: center;
       gap: 2px; /* 버튼 최대한 붙임 */
-      background: transparent;
       z-index: 2;
     }
 
     button {
-      font-size: 64px;          /* 글자 더 크게 */
-      padding: 25px 50px;
-      border-radius: 0;
+      flex: 1 1 0;
+      font-size: 72px;       /* 글자 크기 강조 */
+      padding: 20px 0;
+      border-radius: 8px;
       border: none;
-      background: #00004B;      /* 어두운 남색 */
-      color: #333333;           /* 버튼 글자 어두운 회색 */
+      background: #00004B;   /* 진한 남색 */
+      color: #333333;        /* 글자 어두운 회색 */
       cursor: pointer;
       touch-action: manipulation;
       user-select: none;
-      flex: 0 0 auto;
     }
 
     button:active {
-      background: #000033;       /* 누를 때 색상 */
+      background: #000033;
     }
 
     #level-display {
-      font-size: 36px;           /* 레벨 표시 글자 */
+      font-size: 40px;      /* 레벨 표시 크게 */
       font-weight: bold;
-      min-width: 50px;
+      min-width: 60px;
       text-align: center;
-      padding: 0 5px;
-      color: #333333;            /* 어두운 회색 */
+      color: #333333;
     }
   </style>
   <script type="module">
