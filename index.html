@@ -1,151 +1,149 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>GPS 업로드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <style>
-    body {
-      margin: 0;
-      padding: 20px 10px;
-      font-family: sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      background: #f0f0f0;
-      text-align: center;
-    }
-    #status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
-    .buttons { display: flex; gap: 10px; margin-top: 20px; }
-    .btn-container {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    .btn-label {
-      margin-bottom: 5px;
-      font-size: 16px;
-      font-weight: bold;
-      color: #333;
-    }
-    .buttons button {
-      width: 60px; height: 60px; font-size: 32px;
-      border: none; border-radius: 8px; background: #000033; color: #fff; cursor: pointer;
-    }
-    .buttons button:active { background: #000022; }
-  </style>
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+<meta charset="utf-8">
+<title>GPS 업로드</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+body {
+  margin: 0;
+  padding: 20px 10px;
+  font-family: sans-serif;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background: #f0f0f0;
+  text-align: center;
+}
+#status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+.buttons { display: flex; gap: 10px; margin-top: 20px; }
+.btn-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.btn-label {
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #333;
+}
+.buttons button {
+  width: 60px; height: 60px; font-size: 32px;
+  border: none; border-radius: 8px; background: #000033; color: #fff; cursor: pointer;
+}
+.buttons button:active { background: #000022; }
+</style>
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
-    const firebaseConfig = {
-      apiKey: "AIzaSyAQGtOEcxFxl9FV7NASLgxLDc23u2vzS_0",
-      authDomain: "mygps-11798.firebaseapp.com",
-      databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
-      projectId: "mygps-11798",
-      storageBucket: "mygps-11798.firebasedatabase.app",
-      messagingSenderId: "271371741627",
-      appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
-    };
+const firebaseConfig = {
+  apiKey: "AIzaSyAQGtOEcxFxl9FV7NASLgxLDc23u2vzS_0",
+  authDomain: "mygps-11798.firebaseapp.com",
+  databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
+  projectId: "mygps-11798",
+  storageBucket: "mygps-11798.firebasedatabase.app",
+  messagingSenderId: "271371741627",
+  appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
+};
 
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
-    window.mapLevel = 4;
-    window.borderRadius = 0;
-    const MAX_RADIUS = 160;
-    let prevPos = null;
-    const MIN_MOVE = 0.00005;
+window.mapLevel = 4;
+window.borderRadius = 0;
+const MAX_RADIUS = 160;
+let prevPos = null;
+const MIN_MOVE = 0.00005;
 
-    function calculateHeading(lat1, lng1, lat2, lng2) {
-      const dLon = (lng2 - lng1) * Math.PI / 180;
-      const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
-      const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
-                Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
-      let brng = Math.atan2(y, x) * 180 / Math.PI;
-      return (brng + 360) % 360;
-    }
+function calculateHeading(lat1, lng1, lat2, lng2) {
+  const dLon = (lng2 - lng1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+  const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+            Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+  let brng = Math.atan2(y, x) * 180 / Math.PI;
+  return (brng + 360) % 360;
+}
 
-    function distance(lat1, lng1, lat2, lng2) {
-      return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
-    }
+function distance(lat1, lng1, lat2, lng2) {
+  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
+}
 
-    function uploadLocation(lat, lng, heading) {
-      set(ref(db, "location/current"), {
-        lat, lng, heading,
-        level: window.mapLevel,
-        borderRadius: window.borderRadius,
-        timestamp: Date.now()
-      });
-    }
+function uploadLocation(lat, lng, heading) {
+  set(ref(db, "location/current"), {
+    lat, lng, heading,
+    level: window.mapLevel,
+    borderRadius: window.borderRadius,
+    timestamp: Date.now()
+  });
+}
 
-    window.onload = function() {
-      const zoomInBtn = document.getElementById('zoom-in');
-      const zoomOutBtn = document.getElementById('zoom-out');
-      const rounderInBtn = document.getElementById('rounder-in');
-      const rounderOutBtn = document.getElementById('rounder-out');
-      const levelLabel = document.getElementById('level-label');
-      const radiusLabel = document.getElementById('radius-label');
+window.onload = function() {
+  const zoomInBtn = document.getElementById('zoom-in');
+  const zoomOutBtn = document.getElementById('zoom-out');
+  const rounderInBtn = document.getElementById('rounder-in');
+  const rounderOutBtn = document.getElementById('rounder-out');
+  const levelLabel = document.getElementById('level-label');
+  const radiusLabel = document.getElementById('radius-label');
 
-      function updateDisplays() {
-        levelLabel.textContent = window.mapLevel;
-        radiusLabel.textContent = window.borderRadius;
-      }
-      updateDisplays();
+  function updateDisplays() {
+    levelLabel.textContent = window.mapLevel;
+    radiusLabel.textContent = window.borderRadius;
+  }
+  updateDisplays();
 
-      // Zoom 버튼
-      zoomInBtn.onclick = () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); };
-      zoomOutBtn.onclick = () => { window.mapLevel++; updateDisplays(); };
+  zoomInBtn.onclick = () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); };
+  zoomOutBtn.onclick = () => { window.mapLevel++; updateDisplays(); };
 
-      // 연속 증가/감소
-      let interval = null;
+  let intervalIn = null;
+  let intervalOut = null;
 
-      rounderInBtn.addEventListener('mousedown', () => {
-        interval = setInterval(() => {
-          window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + 5);
-          updateDisplays();
-        }, 100);
-      });
-      rounderInBtn.addEventListener('mouseup', () => clearInterval(interval));
-      rounderInBtn.addEventListener('mouseleave', () => clearInterval(interval));
+  const startIncrease = () => { intervalIn = setInterval(() => { window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + 5); updateDisplays(); }, 100); }
+  const stopIncrease = () => { clearInterval(intervalIn); }
 
-      rounderOutBtn.addEventListener('mousedown', () => {
-        interval = setInterval(() => {
-          window.borderRadius = Math.max(0, window.borderRadius - 5);
-          updateDisplays();
-        }, 100);
-      });
-      rounderOutBtn.addEventListener('mouseup', () => clearInterval(interval));
-      rounderOutBtn.addEventListener('mouseleave', () => clearInterval(interval));
+  const startDecrease = () => { intervalOut = setInterval(() => { window.borderRadius = Math.max(0, window.borderRadius - 5); updateDisplays(); }, 100); }
+  const stopDecrease = () => { clearInterval(intervalOut); }
 
-      // GPS 업로드
-      if(navigator.geolocation){
-        navigator.geolocation.watchPosition(
-          (pos) => {
-            let heading = pos.coords.heading;
-            if(prevPos){
-              const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
-              if(moveDist >= MIN_MOVE){
-                if(!heading || heading===0){
-                  heading = calculateHeading(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
-                }
-                prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
-              } else {
-                heading = heading || prevPos.heading || 0;
-              }
-            } else {
-              prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude, heading: heading || 0 };
+  rounderInBtn.addEventListener('mousedown', startIncrease);
+  rounderInBtn.addEventListener('mouseup', stopIncrease);
+  rounderInBtn.addEventListener('mouseleave', stopIncrease);
+  rounderInBtn.addEventListener('touchstart', startIncrease);
+  rounderInBtn.addEventListener('touchend', stopIncrease);
+
+  rounderOutBtn.addEventListener('mousedown', startDecrease);
+  rounderOutBtn.addEventListener('mouseup', stopDecrease);
+  rounderOutBtn.addEventListener('mouseleave', stopDecrease);
+  rounderOutBtn.addEventListener('touchstart', startDecrease);
+  rounderOutBtn.addEventListener('touchend', stopDecrease);
+
+  if(navigator.geolocation){
+    navigator.geolocation.watchPosition(
+      (pos) => {
+        let heading = pos.coords.heading;
+        if(prevPos){
+          const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+          if(moveDist >= MIN_MOVE){
+            if(!heading || heading===0){
+              heading = calculateHeading(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
             }
-            uploadLocation(pos.coords.latitude, pos.coords.longitude, heading);
-          },
-          (err) => console.error(err),
-          { enableHighAccuracy: true }
-        );
-      } else { alert("GPS를 지원하지 않는 기기입니다."); }
-    };
-  </script>
+            prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          } else {
+            heading = heading || prevPos.heading || 0;
+          }
+        } else {
+          prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude, heading: heading || 0 };
+        }
+        uploadLocation(pos.coords.latitude, pos.coords.longitude, heading);
+      },
+      (err) => console.error(err),
+      { enableHighAccuracy: true }
+    );
+  } else { alert("GPS를 지원하지 않는 기기입니다."); }
+};
+</script>
 </head>
 <body>
   <div id="status-text">📍 GPS 업로드 중...</div>
