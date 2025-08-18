@@ -7,7 +7,6 @@
   <style>
     body {
       font-family: sans-serif;
-      text-align: center;
       margin: 0;
       padding: 20px 10px;
       display: flex;
@@ -16,39 +15,41 @@
       min-height: 100vh;
       box-sizing: border-box;
       background: #f0f0f0;
-      color: #333333; /* 모든 글자를 어두운 회색으로 */
+      color: #333333; /* 글자 어두운 회색 */
+      text-align: center;
     }
 
     h2 {
-      margin-bottom: 100px; /* 하단 버튼 공간 확보 */
-      color: #333333;        /* 어두운 회색 */
+      margin-bottom: 120px; /* 하단 버튼 공간 확보 */
+      color: #333333;
+      font-size: 24px;
     }
 
     .control-container {
-      width: 66%;
+      width: 66%; /* 화면 가로 2/3 */
       max-width: 500px;
       position: fixed;
       bottom: 20px;
       left: 50%;
       transform: translateX(-50%);
       display: flex;
-      justify-content: center;
+      justify-content: space-between; /* 버튼과 레벨 표시 간격 최소화 */
       align-items: center;
-      gap: 2px; /* 버튼 최대한 붙임 */
       z-index: 2;
+      gap: 2px;
     }
 
     button {
-      font-size: 64px;       /* 글자 크기 */
+      flex: 1 1 0;
+      font-size: 72px;       /* 글자 크게 */
       padding: 20px 0;
       border-radius: 8px;
       border: none;
-      background: #00004B;   /* 진한 남색 */
+      background: #00004B;
       color: #333333;        /* 글자 어두운 회색 */
       cursor: pointer;
       touch-action: manipulation;
       user-select: none;
-      flex: 1 1 0;
     }
 
     button:active {
@@ -56,11 +57,11 @@
     }
 
     #level-display {
-      font-size: 36px;
+      font-size: 40px;      /* 레벨 표시 크게 */
       font-weight: bold;
       min-width: 60px;
       text-align: center;
-      color: #333333; /* 레벨 표시도 어두운 회색 */
+      color: #333333;
     }
   </style>
   <script type="module">
