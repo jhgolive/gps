@@ -19,7 +19,7 @@ body {
   user-select: none;
 }
 #status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
-.buttons { display: flex; gap: 15px; margin-top: 20px; }
+.buttons { display: flex; gap: 10px; margin-top: 20px; }
 .btn-container {
   display: flex;
   flex-direction: column;
@@ -99,47 +99,21 @@ window.onload = function() {
   }
   updateDisplays();
 
-  const zoomIncrement = 1;
   const radiusIncrement = 10;
 
-  let intervalZoomIn = null;
-  let intervalZoomOut = null;
-  let intervalRadiusIn = null;
-  let intervalRadiusOut = null;
+  // Zoom 버튼 (클릭만)
+  zoomInBtn.addEventListener('click', () => { if(window.mapLevel>1) window.mapLevel--; updateDisplays(); });
+  zoomOutBtn.addEventListener('click', () => { window.mapLevel++; updateDisplays(); });
 
-  function changeZoom(delta) { window.mapLevel = Math.max(1, window.mapLevel + delta); updateDisplays(); }
-  function changeRadius(delta) { 
-    window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
+  // Radius 버튼 (클릭만)
+  rounderInBtn.addEventListener('click', () => {
+    window.borderRadius = Math.min(MAX_RADIUS, window.borderRadius + radiusIncrement);
     updateDisplays();
-  }
-
-  // Zoom 버튼
-  zoomInBtn.addEventListener('click', () => changeZoom(-zoomIncrement));
-  zoomOutBtn.addEventListener('click', () => changeZoom(zoomIncrement));
-  zoomInBtn.addEventListener('mousedown', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
-  zoomOutBtn.addEventListener('mousedown', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
-  zoomInBtn.addEventListener('mouseup', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('mouseup', () => clearInterval(intervalZoomOut));
-  zoomInBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('mouseleave', () => clearInterval(intervalZoomOut));
-  zoomInBtn.addEventListener('touchstart', () => { intervalZoomIn = setInterval(()=>changeZoom(-zoomIncrement), 100); });
-  zoomOutBtn.addEventListener('touchstart', () => { intervalZoomOut = setInterval(()=>changeZoom(zoomIncrement), 100); });
-  zoomInBtn.addEventListener('touchend', () => clearInterval(intervalZoomIn));
-  zoomOutBtn.addEventListener('touchend', () => clearInterval(intervalZoomOut));
-
-  // Radius 버튼
-  rounderInBtn.addEventListener('click', () => changeRadius(radiusIncrement));
-  rounderOutBtn.addEventListener('click', () => changeRadius(-radiusIncrement));
-  rounderInBtn.addEventListener('mousedown', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
-  rounderOutBtn.addEventListener('mousedown', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
-  rounderInBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('mouseup', () => clearInterval(intervalRadiusOut));
-  rounderInBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('mouseleave', () => clearInterval(intervalRadiusOut));
-  rounderInBtn.addEventListener('touchstart', () => { intervalRadiusIn = setInterval(()=>changeRadius(radiusIncrement), 100); });
-  rounderOutBtn.addEventListener('touchstart', () => { intervalRadiusOut = setInterval(()=>changeRadius(-radiusIncrement), 100); });
-  rounderInBtn.addEventListener('touchend', () => clearInterval(intervalRadiusIn));
-  rounderOutBtn.addEventListener('touchend', () => clearInterval(intervalRadiusOut));
+  });
+  rounderOutBtn.addEventListener('click', () => {
+    window.borderRadius = Math.max(0, window.borderRadius - radiusIncrement);
+    updateDisplays();
+  });
 
   // GPS 업로드
   if(navigator.geolocation){
@@ -171,7 +145,6 @@ window.onload = function() {
 <body>
   <div id="status-text">📍 GPS 업로드 중...</div>
   <div class="buttons">
-    <!-- Zoom + / - -->
     <div class="btn-container">
       <div class="btn-label" id="level-label">4</div>
       <button id="rounder-in">○</button>
@@ -181,6 +154,9 @@ window.onload = function() {
       <div class="btn-label">&nbsp;</div>
       <button id="rounder-out">□</button>
       <button id="zoom-out">-</button>
+    </div>
+    <div class="btn-container">
+      <div class="btn-label" id="radius-label">0</div>
     </div>
   </div>
 </body>
