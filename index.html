@@ -39,6 +39,11 @@ body {
   margin-bottom: 5px;
 }
 .buttons button:active { background: #000022; }
+.opacity-label {
+  margin-top: 10px;
+  font-size: 16px;
+  font-weight: bold;
+}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -59,6 +64,7 @@ const db = getDatabase(app);
 
 window.mapLevel = 4;
 window.borderRadius = 0;
+window.mapOpacity = 1; // 초기 투명도
 const MAX_RADIUS = 160;
 let prevPos = null;
 const MIN_MOVE = 0.00005;
@@ -81,6 +87,7 @@ function uploadLocation(lat, lng, heading) {
     lat, lng, heading,
     level: window.mapLevel,
     borderRadius: window.borderRadius,
+    opacity: window.mapOpacity,
     timestamp: Date.now()
   });
 }
@@ -90,21 +97,25 @@ window.onload = function() {
   const zoomOutBtn = document.getElementById('zoom-out');
   const rounderInBtn = document.getElementById('rounder-in');
   const rounderOutBtn = document.getElementById('rounder-out');
+  const opacityUpBtn = document.getElementById('opacity-up');
+  const opacityDownBtn = document.getElementById('opacity-down');
   const levelLabel = document.getElementById('level-label');
   const radiusLabel = document.getElementById('radius-label');
+  const opacityLabel = document.getElementById('opacity-label');
 
   function updateDisplays() {
     levelLabel.textContent = window.mapLevel;
     radiusLabel.textContent = window.borderRadius;
+    opacityLabel.textContent = window.mapOpacity.toFixed(2);
   }
   updateDisplays();
 
   const radiusIncrement = 10;
   const zoomIncrement = 1;
+  const opacityIncrement = 0.05;
   const intervalDelay = 200; // 반복 속도 (ms)
   const startDelay = 500;    // 꾹 누르고 시작 대기 시간 (ms)
 
-  // 🔹 mapLevel은 최소 1, 최대 14 제한
   function changeZoom(delta) { 
     window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta)); 
     updateDisplays(); 
@@ -112,6 +123,11 @@ window.onload = function() {
 
   function changeRadius(delta) { 
     window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
+    updateDisplays();
+  }
+
+  function changeOpacity(delta) {
+    window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta)); // 0.1~1.0 제한
     updateDisplays();
   }
 
@@ -125,7 +141,6 @@ window.onload = function() {
       interval = setInterval(() => func(delta), intervalDelay);
     };
 
-    // 마우스 이벤트
     button.addEventListener('mousedown', () => {
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
@@ -133,14 +148,13 @@ window.onload = function() {
     button.addEventListener('mouseup', () => {
       clearTimeout(timeout);
       clearInterval(interval);
-      if (!longPress) func(delta);  // 짧게 눌렀을 때 실행
+      if (!longPress) func(delta);
     });
     button.addEventListener('mouseleave', () => {
       clearTimeout(timeout);
       clearInterval(interval);
     });
 
-    // 터치 이벤트
     button.addEventListener('touchstart', (e) => {
       e.preventDefault();
       longPress = false;
@@ -149,19 +163,17 @@ window.onload = function() {
     button.addEventListener('touchend', () => {
       clearTimeout(timeout);
       clearInterval(interval);
-      if (!longPress) func(delta);  // 짧게 탭했을 때 실행
+      if (!longPress) func(delta);
     });
   }
 
-  // Zoom 버튼
   addHoldEvent(zoomInBtn, -zoomIncrement, changeZoom);
   addHoldEvent(zoomOutBtn, zoomIncrement, changeZoom);
-
-  // Radius 버튼
   addHoldEvent(rounderInBtn, radiusIncrement, changeRadius);
   addHoldEvent(rounderOutBtn, -radiusIncrement, changeRadius);
+  addHoldEvent(opacityUpBtn, opacityIncrement, changeOpacity);
+  addHoldEvent(opacityDownBtn, -opacityIncrement, changeOpacity);
 
-  // GPS 업로드
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
@@ -203,6 +215,11 @@ window.onload = function() {
     </div>
     <div class="btn-container">
       <div class="btn-label" id="radius-label">0</div>
+    </div>
+    <div class="btn-container">
+      <div class="btn-label opacity-label" id="opacity-label">1.00</div>
+      <button id="opacity-up">🔆</button>
+      <button id="opacity-down">🌑</button>
     </div>
   </div>
 </body>
