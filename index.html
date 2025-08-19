@@ -104,7 +104,10 @@ window.onload = function() {
   const intervalDelay = 300; // 반복 속도 (ms)
   const startDelay = 500;    // 누르고 시작 대기 시간 (ms)
 
-  function changeZoom(delta) { window.mapLevel = Math.max(1, window.mapLevel + delta); updateDisplays(); }
+  function changeZoom(delta) { 
+    window.mapLevel = Math.max(1, window.mapLevel + delta); 
+    updateDisplays(); 
+  }
   function changeRadius(delta) { 
     window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
     updateDisplays();
@@ -113,18 +116,43 @@ window.onload = function() {
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
+    let isHolding = false;
 
-    const startChange = () => { interval = setInterval(() => func(delta), intervalDelay); };
+    const startChange = () => {
+      isHolding = true;
+      interval = setInterval(() => func(delta), intervalDelay);
+    };
 
-    // 클릭 시 즉시 변화
-    button.addEventListener('click', () => func(delta));
+    // 클릭 시 즉시 변화 (길게 누르지 않았을 경우에만)
+    button.addEventListener('click', () => {
+      if (!isHolding) func(delta);
+      isHolding = false; // 초기화
+    });
 
     // 누르고 있으면 일정 시간 후 반복
-    button.addEventListener('mousedown', () => { timeout = setTimeout(startChange, startDelay); });
-    button.addEventListener('mouseup', () => { clearTimeout(timeout); clearInterval(interval); });
-    button.addEventListener('mouseleave', () => { clearTimeout(timeout); clearInterval(interval); });
-    button.addEventListener('touchstart', (e) => { e.preventDefault(); timeout = setTimeout(startChange, startDelay); });
-    button.addEventListener('touchend', () => { clearTimeout(timeout); clearInterval(interval); });
+    button.addEventListener('mousedown', () => {
+      timeout = setTimeout(startChange, startDelay);
+    });
+    button.addEventListener('mouseup', () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+      isHolding = false;
+    });
+    button.addEventListener('mouseleave', () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+      isHolding = false;
+    });
+
+    button.addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      timeout = setTimeout(startChange, startDelay);
+    });
+    button.addEventListener('touchend', () => {
+      clearTimeout(timeout);
+      clearInterval(interval);
+      isHolding = false;
+    });
   }
 
   // Zoom 버튼
