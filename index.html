@@ -48,7 +48,7 @@ button {
   transition: background 0.1s;
 }
 button.active {
-  background: #000055; /* 버튼 누를 때 표시 */
+  background: #000088; /* 버튼 누를 때 밝은 색 */
 }
 </style>
 <script type="module">
@@ -126,7 +126,7 @@ window.onload = function() {
   }
   updateDisplays();
 
-  const intervalDelay = 200;
+  const intervalDelay = 150; // 값 바뀌는 속도
   const startDelay = 500;
   const zoomIncrement = 1;
   const radiusIncrement = 10;
@@ -249,8 +249,8 @@ window.onload = function() {
   <!-- 지도 크기 조절 (확대/축소 버튼 위) -->
   <div class="btn-row">
     <div class="btn-label" id="size-label">200</div>
-    <button id="size-down">▽</button>
-    <button id="size-up">△</button>
+    <button id="size-down">><</button>
+    <button id="size-up"><></button>
   </div>
 
   <!-- 지도 확대/축소 -->
