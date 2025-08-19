@@ -26,8 +26,8 @@ body {
 .btn-row {
   display: flex;
   align-items: center;
-  gap: 2px;
-  margin-bottom: 2px;
+  gap: 2px; /* 버튼 좌우 간격 최소화 */
+  margin-bottom: 2px; /* 버튼 위아래 간격 최소화 */
 }
 .btn-label {
   font-size: 18px;
@@ -41,13 +41,15 @@ button {
   font-size: 36px;
   border: none;
   border-radius: 12px;
-  background: #000033;
+  background: #000033; /* 남색 */
   color: #fff;
   cursor: pointer;
   user-select: none;
   transition: background 0.1s;
 }
-button.active { background: #000088; }
+button.active {
+  background: #000088; /* 버튼 누를 때 밝은 색 */
+}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -58,7 +60,7 @@ const firebaseConfig = {
   authDomain: "mygps-11798.firebaseapp.com",
   databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mygps-11798",
-  storageBucket: "mygps-11798.firebasestorage.app",
+  storageBucket: "mygps-11798.firebasedestorage.app",
   messagingSenderId: "271371741627",
   appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
 };
@@ -70,30 +72,26 @@ window.mapLevel = 4;
 window.borderRadius = 160; 
 window.mapOpacity = 1;
 window.mapSize = 200;      
-
 const MAX_RADIUS = 160;
 const MIN_MOVE = 0.00005;
 const MAX_SIZE = 600;
 const MIN_SIZE = 100;
-const DEG = Math.PI/180;
 
 let prevPos = null;
 
-// 좌표 거리 계산
 function distance(lat1, lng1, lat2, lng2) {
   return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
 
-// 방위각 계산
 function calculateHeading(lat1, lng1, lat2, lng2) {
-  const dLon = (lng2 - lng1) * DEG;
-  const y = Math.sin(dLon) * Math.cos(lat2 * DEG);
-  const x = Math.cos(lat1 * DEG) * Math.sin(lat2 * DEG) -
-            Math.sin(lat1 * DEG) * Math.cos(lat2 * DEG) * Math.cos(dLon);
-  return (Math.atan2(y, x) * 180 / Math.PI + 360) % 360;
+  const dLon = (lng2 - lng1) * Math.PI / 180;
+  const y = Math.sin(dLon) * Math.cos(lat2 * Math.PI / 180);
+  const x = Math.cos(lat1 * Math.PI / 180) * Math.sin(lat2 * Math.PI / 180) -
+            Math.sin(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) * Math.cos(dLon);
+  let brng = Math.atan2(y, x) * 180 / Math.PI;
+  return (brng + 360) % 360;
 }
 
-// Firebase 업로드
 function uploadLocation(lat, lng, heading) {
   set(ref(db, "location/current"), {
     lat, lng, heading,
@@ -106,7 +104,6 @@ function uploadLocation(lat, lng, heading) {
 }
 
 window.onload = function() {
-  // 버튼 캐싱
   const zoomInBtn = document.getElementById('zoom-in');
   const zoomOutBtn = document.getElementById('zoom-out');
   const rounderInBtn = document.getElementById('rounder-in');
@@ -129,8 +126,12 @@ window.onload = function() {
   }
   updateDisplays();
 
-  const intervalDelay = 150;
+  const intervalDelay = 150; // 값 바뀌는 속도
   const startDelay = 500;
+  const zoomIncrement = 1;
+  const radiusIncrement = 10;
+  const opacityIncrement = 0.05;
+  const sizeIncrement = 20;
 
   function changeOpacity(delta) {
     window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta));
@@ -149,7 +150,6 @@ window.onload = function() {
     updateDisplays();
   }
 
-  // 버튼 길게 누름 처리
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
@@ -183,20 +183,24 @@ window.onload = function() {
     });
   }
 
-  addHoldEvent(opacityUpBtn, 0.05, changeOpacity);
-  addHoldEvent(opacityDownBtn, -0.05, changeOpacity);
-  addHoldEvent(rounderInBtn, 10, changeRadius);
-  addHoldEvent(rounderOutBtn, -10, changeRadius);
-  addHoldEvent(zoomInBtn, 1, changeZoom);
-  addHoldEvent(zoomOutBtn, -1, changeZoom);
-  addHoldEvent(sizeUpBtn, 20, changeMapSize);
-  addHoldEvent(sizeDownBtn, -20, changeMapSize);
+  addHoldEvent(opacityUpBtn, opacityIncrement, changeOpacity);
+  addHoldEvent(opacityDownBtn, -opacityIncrement, changeOpacity);
+  addHoldEvent(rounderInBtn, radiusIncrement, changeRadius);
+  addHoldEvent(rounderOutBtn, -radiusIncrement, changeRadius);
+  addHoldEvent(zoomInBtn, zoomIncrement, changeZoom);
+  addHoldEvent(zoomOutBtn, -zoomIncrement, changeZoom);
+  addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
+  addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
-  // 버튼 눌림 표시 최적화
+  // 버튼 눌림 시 표시
   const buttons = document.querySelectorAll('button');
   buttons.forEach(btn => {
-    ["mousedown","touchstart"].forEach(ev=>btn.addEventListener(ev,()=>btn.classList.add('active')));
-    ["mouseup","mouseleave","touchend","touchcancel"].forEach(ev=>btn.addEventListener(ev,()=>btn.classList.remove('active')));
+    btn.addEventListener('mousedown', () => btn.classList.add('active'));
+    btn.addEventListener('mouseup', () => btn.classList.remove('active'));
+    btn.addEventListener('mouseleave', () => btn.classList.remove('active'));
+    btn.addEventListener('touchstart', () => btn.classList.add('active'));
+    btn.addEventListener('touchend', () => btn.classList.remove('active'));
+    btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
   if(navigator.geolocation){
@@ -242,18 +246,19 @@ window.onload = function() {
     <button id="rounder-in">○</button>
   </div>
 
-  <!-- 지도 크기 -->
+  <!-- 지도 크기 조절 (확대/축소 버튼 위) -->
   <div class="btn-row">
     <div class="btn-label" id="size-label">200</div>
     <button id="size-down">-</button>
     <button id="size-up">+</button>
   </div>
 
-  <!-- 확대/축소 -->
+  <!-- 지도 확대/축소 -->
   <div class="btn-row">
     <div class="btn-label" id="level-label">4</div>
     <button id="zoom-in">><</button>   
     <button id="zoom-out"><></button>  
   </div>
+  
 </body>
 </html>
