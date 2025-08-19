@@ -26,8 +26,8 @@ body {
 .btn-row {
   display: flex;
   align-items: center;
-  gap: 10px;
-  margin-bottom: 15px;
+  gap: 2px; /* 버튼 간격 최소화 */
+  margin-bottom: 10px;
 }
 .btn-label {
   font-size: 18px;
@@ -36,18 +36,18 @@ body {
   font-weight: bold;
 }
 button {
-  width: 80px;       /* 버튼 가로 크기 */
-  height: 80px;      /* 버튼 세로 크기 */
-  font-size: 36px;   /* 글자 크기 */
+  width: 80px;
+  height: 80px;
+  font-size: 36px;
   border: none;
   border-radius: 12px;
-  background: #000055; /* 어두운 남색 */
+  background: #000022; /* 더 어두운 색상 */
   color: #fff;
   cursor: pointer;
   user-select: none;
 }
 button:active { 
-  background: #000033; 
+  background: #000011; 
 }
 </style>
 <script type="module">
@@ -67,7 +67,6 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// 초기값
 window.mapLevel = 4;
 window.borderRadius = 160; 
 window.mapOpacity = 1;
@@ -221,6 +220,13 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
+  <!-- 지도 크기 (가장 위) -->
+  <div class="btn-row">
+    <div class="btn-label" id="size-label">200</div>
+    <button id="size-down">▽</button>
+    <button id="size-up">△</button>
+  </div>
+
   <!-- 투명도 -->
   <div class="btn-row">
     <div class="btn-label" id="opacity-label">1.00</div>
@@ -235,14 +241,7 @@ window.onload = function() {
     <button id="rounder-in">○</button>
   </div>
 
-  <!-- 지도 크기 -->
-  <div class="btn-row">
-    <div class="btn-label" id="size-label">200</div>
-    <button id="size-down">▽</button>
-    <button id="size-up">△</button>
-  </div>
-
-  <!-- 지도 확대/축소 (기호 거꾸로) -->
+  <!-- 지도 확대/축소 -->
   <div class="btn-row">
     <div class="btn-label" id="level-label">4</div>
     <button id="zoom-in">-</button>   
