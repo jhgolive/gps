@@ -64,9 +64,13 @@ const db = getDatabase(app);
 window.mapLevel = 4;
 window.borderRadius = 0;
 window.mapOpacity = 1;
+window.mapSize = 300; // 지도 크기 초기값
 const MAX_RADIUS = 160;
-let prevPos = null;
 const MIN_MOVE = 0.00005;
+const MAX_SIZE = 600;
+const MIN_SIZE = 100;
+
+let prevPos = null;
 
 function distance(lat1, lng1, lat2, lng2) {
   return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
@@ -87,6 +91,7 @@ function uploadLocation(lat, lng, heading) {
     level: window.mapLevel,
     borderRadius: window.borderRadius,
     opacity: window.mapOpacity,
+    mapSize: window.mapSize,
     timestamp: Date.now()
   });
 }
@@ -98,14 +103,19 @@ window.onload = function() {
   const rounderOutBtn = document.getElementById('rounder-out');
   const opacityUpBtn = document.getElementById('opacityUp');
   const opacityDownBtn = document.getElementById('opacityDown');
+  const sizeUpBtn = document.getElementById('size-up');
+  const sizeDownBtn = document.getElementById('size-down');
+
   const opacityLabel = document.getElementById('opacity-label');
   const radiusLabel = document.getElementById('radius-label');
   const levelLabel = document.getElementById('level-label');
+  const sizeLabel = document.getElementById('size-label');
 
   function updateDisplays() {
     opacityLabel.textContent = window.mapOpacity.toFixed(2);
     radiusLabel.textContent = window.borderRadius;
     levelLabel.textContent = window.mapLevel;
+    sizeLabel.textContent = window.mapSize;
   }
   updateDisplays();
 
@@ -114,6 +124,7 @@ window.onload = function() {
   const zoomIncrement = 1;
   const radiusIncrement = 10;
   const opacityIncrement = 0.05;
+  const sizeIncrement = 20;
 
   function changeOpacity(delta) {
     window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta));
@@ -125,6 +136,10 @@ window.onload = function() {
   }
   function changeZoom(delta) {
     window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta));
+    updateDisplays();
+  }
+  function changeMapSize(delta) {
+    window.mapSize = Math.min(MAX_SIZE, Math.max(MIN_SIZE, window.mapSize + delta));
     updateDisplays();
   }
 
@@ -167,6 +182,8 @@ window.onload = function() {
   addHoldEvent(rounderOutBtn, -radiusIncrement, changeRadius);
   addHoldEvent(zoomInBtn, zoomIncrement, changeZoom);
   addHoldEvent(zoomOutBtn, -zoomIncrement, changeZoom);
+  addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
+  addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
@@ -197,20 +214,32 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
+  <!-- 투명도 -->
   <div class="btn-row">
     <div class="btn-label" id="opacity-label">1.00</div>
     <button id="opacityUp">★</button>
     <button id="opacityDown">☆</button>
   </div>
+
+  <!-- 테두리 둥글기 -->
   <div class="btn-row">
     <div class="btn-label" id="radius-label">0</div>
     <button id="rounder-in">○</button>
     <button id="rounder-out">□</button>
   </div>
+
+  <!-- 지도 확대/축소 -->
   <div class="btn-row">
     <div class="btn-label" id="level-label">4</div>
     <button id="zoom-in">+</button>
     <button id="zoom-out">-</button>
+  </div>
+
+  <!-- 지도 크기 -->
+  <div class="btn-row">
+    <div class="btn-label" id="size-label">300</div>
+    <button id="size-up">▲</button>
+    <button id="size-down">▼</button>
   </div>
 </body>
 </html>
