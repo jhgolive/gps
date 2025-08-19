@@ -18,7 +18,11 @@ body {
   text-align: center;
   user-select: none;
 }
-#status-text { font-size: 24px; font-weight: bold; margin-bottom: 20px; }
+#status-text { 
+  font-size: 24px; 
+  font-weight: bold; 
+  margin-bottom: 20px; 
+}
 .btn-row {
   display: flex;
   align-items: center;
@@ -31,18 +35,20 @@ body {
   text-align: right;
   font-weight: bold;
 }
-.buttons button {
-  width: 60px;
-  height: 60px;
-  font-size: 32px;
+button {
+  width: 80px;       /* 버튼 가로 크기 */
+  height: 80px;      /* 버튼 세로 크기 */
+  font-size: 36px;   /* 글자 크기 */
   border: none;
-  border-radius: 8px;
-  background: #000033;
+  border-radius: 12px;
+  background: #000055; /* 어두운 남색 */
   color: #fff;
   cursor: pointer;
   user-select: none;
 }
-.buttons button:active { background: #000022; }
+button:active { 
+  background: #000033; 
+}
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
@@ -63,9 +69,9 @@ const db = getDatabase(app);
 
 // 초기값
 window.mapLevel = 4;
-window.borderRadius = 160; // 초기 테두리 둥글기
+window.borderRadius = 160; 
 window.mapOpacity = 1;
-window.mapSize = 200;      // 초기 지도 크기
+window.mapSize = 200;      
 const MAX_RADIUS = 160;
 const MIN_MOVE = 0.00005;
 const MAX_SIZE = 600;
@@ -229,7 +235,7 @@ window.onload = function() {
     <button id="rounder-in">○</button>
   </div>
 
-  <!-- 지도 크기 (위로 이동) -->
+  <!-- 지도 크기 -->
   <div class="btn-row">
     <div class="btn-label" id="size-label">200</div>
     <button id="size-down">▽</button>
@@ -239,9 +245,8 @@ window.onload = function() {
   <!-- 지도 확대/축소 (기호 거꾸로) -->
   <div class="btn-row">
     <div class="btn-label" id="level-label">4</div>
-    <button id="zoom-in">-</button>   <!-- + 대신 - -->
-    <button id="zoom-out">+</button>  <!-- - 대신 + -->
+    <button id="zoom-in">-</button>   
+    <button id="zoom-out">+</button>  
   </div>
 </body>
 </html>
-
