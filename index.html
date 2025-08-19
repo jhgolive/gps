@@ -101,13 +101,15 @@ window.onload = function() {
 
   const radiusIncrement = 10;
   const zoomIncrement = 1;
-  const intervalDelay = 200; // 반복 속도 (ms) ← 요청하신대로 200ms
+  const intervalDelay = 200; // 반복 속도 (ms)
   const startDelay = 500;    // 꾹 누르고 시작 대기 시간 (ms)
 
+  // 🔹 mapLevel은 최소 1, 최대 14 제한
   function changeZoom(delta) { 
-    window.mapLevel = Math.max(1, window.mapLevel + delta); 
+    window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta)); 
     updateDisplays(); 
   }
+
   function changeRadius(delta) { 
     window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
     updateDisplays();
