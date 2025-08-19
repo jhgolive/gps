@@ -7,13 +7,13 @@
 <style>
 body {
   margin: 0;
-  padding: 20px 10px;
+  padding: 10px;
   font-family: sans-serif;
   display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
-  min-height:100vh;
+  min-height: 100vh;
   background: #f0f0f0;
   text-align: center;
   user-select: none;
@@ -21,13 +21,13 @@ body {
 #status-text { 
   font-size: 24px; 
   font-weight: bold; 
-  margin-bottom: 20px; 
+  margin-bottom: 10px; 
 }
 .btn-row {
   display: flex;
   align-items: center;
-  gap: 2px; /* 버튼 간격 최소화 */
-  margin-bottom: 10px;
+  gap: 2px; /* 버튼 좌우 간격 최소화 */
+  margin-bottom: 2px; /* 버튼 위아래 간격 최소화 */
 }
 .btn-label {
   font-size: 18px;
@@ -36,18 +36,19 @@ body {
   font-weight: bold;
 }
 button {
-  width: 80px;
-  height: 80px;
-  font-size: 36px;
+  width: 90px;       /* 버튼 가로 */
+  height: 90px;      /* 버튼 세로 */
+  font-size: 40px;   /* 글자 크기 */
   border: none;
   border-radius: 12px;
-  background: #000022; /* 더 어두운 색상 */
+  background: #000033; /* 남색 쪽 */
   color: #fff;
   cursor: pointer;
   user-select: none;
+  transition: background 0.1s; /* 클릭 시 자연스러운 변화 */
 }
 button:active { 
-  background: #000011; 
+  background: #000055; /* 클릭 시 표시 */
 }
 </style>
 <script type="module">
@@ -220,11 +221,18 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
-  <!-- 지도 크기 (가장 위) -->
+  <!-- 지도 크기 조절 (확대/축소 버튼 위) -->
   <div class="btn-row">
     <div class="btn-label" id="size-label">200</div>
     <button id="size-down">▽</button>
     <button id="size-up">△</button>
+  </div>
+
+  <!-- 지도 확대/축소 -->
+  <div class="btn-row">
+    <div class="btn-label" id="level-label">4</div>
+    <button id="zoom-in">-</button>   
+    <button id="zoom-out">+</button>  
   </div>
 
   <!-- 투명도 -->
@@ -241,11 +249,5 @@ window.onload = function() {
     <button id="rounder-in">○</button>
   </div>
 
-  <!-- 지도 확대/축소 -->
-  <div class="btn-row">
-    <div class="btn-label" id="level-label">4</div>
-    <button id="zoom-in">-</button>   
-    <button id="zoom-out">+</button>  
-  </div>
 </body>
 </html>
