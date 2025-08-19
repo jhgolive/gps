@@ -46,7 +46,7 @@ body {
 </style>
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
-import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAQGtOEcxFxl9FV7NASLgxLDc23u2vzS_0",
@@ -229,18 +229,18 @@ window.onload = function() {
     <button id="rounder-out">□</button>
   </div>
 
-  <!-- 지도 확대/축소 -->
-  <div class="btn-row">
-    <div class="btn-label" id="level-label">4</div>
-    <button id="zoom-in">+</button>
-    <button id="zoom-out">-</button>
-  </div>
-
-  <!-- 지도 크기 -->
+  <!-- 지도 크기 (위로 이동) -->
   <div class="btn-row">
     <div class="btn-label" id="size-label">200</div>
     <button id="size-up">▲</button>
     <button id="size-down">▼</button>
+  </div>
+
+  <!-- 지도 확대/축소 (기호 거꾸로) -->
+  <div class="btn-row">
+    <div class="btn-label" id="level-label">4</div>
+    <button id="zoom-in">-</button>   <!-- + 대신 - -->
+    <button id="zoom-out">+</button>  <!-- - 대신 + -->
   </div>
 </body>
 </html>
