@@ -64,7 +64,7 @@ const db = getDatabase(app);
 
 window.mapLevel = 4;
 window.borderRadius = 0;
-window.mapOpacity = 1; // 초기 투명도
+window.mapOpacity = 1;
 const MAX_RADIUS = 160;
 let prevPos = null;
 const MIN_MOVE = 0.00005;
@@ -97,8 +97,8 @@ window.onload = function() {
   const zoomOutBtn = document.getElementById('zoom-out');
   const rounderInBtn = document.getElementById('rounder-in');
   const rounderOutBtn = document.getElementById('rounder-out');
-  const opacityUpBtn = document.getElementById('opacity-up');
-  const opacityDownBtn = document.getElementById('opacity-down');
+  const opacityUpBtn = document.getElementById('opacityUp');   // ID 일치
+  const opacityDownBtn = document.getElementById('opacityDown'); // ID 일치
   const levelLabel = document.getElementById('level-label');
   const radiusLabel = document.getElementById('radius-label');
   const opacityLabel = document.getElementById('opacity-label');
@@ -113,8 +113,8 @@ window.onload = function() {
   const radiusIncrement = 10;
   const zoomIncrement = 1;
   const opacityIncrement = 0.05;
-  const intervalDelay = 200; // 반복 속도 (ms)
-  const startDelay = 500;    // 꾹 누르고 시작 대기 시간 (ms)
+  const intervalDelay = 200;
+  const startDelay = 500;
 
   function changeZoom(delta) { 
     window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta)); 
@@ -127,7 +127,7 @@ window.onload = function() {
   }
 
   function changeOpacity(delta) {
-    window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta)); // 0.1~1.0 제한
+    window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta));
     updateDisplays();
   }
 
@@ -135,12 +135,10 @@ window.onload = function() {
     let interval = null;
     let timeout = null;
     let longPress = false;
-
     const startChange = () => {
       longPress = true;
       interval = setInterval(() => func(delta), intervalDelay);
     };
-
     button.addEventListener('mousedown', () => {
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
@@ -154,7 +152,6 @@ window.onload = function() {
       clearTimeout(timeout);
       clearInterval(interval);
     });
-
     button.addEventListener('touchstart', (e) => {
       e.preventDefault();
       longPress = false;
