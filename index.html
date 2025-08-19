@@ -36,19 +36,19 @@ body {
   font-weight: bold;
 }
 button {
-  width: 90px;       /* 버튼 가로 */
-  height: 90px;      /* 버튼 세로 */
-  font-size: 40px;   /* 글자 크기 */
+  width: 80px;
+  height: 80px;
+  font-size: 36px;
   border: none;
   border-radius: 12px;
-  background: #000033; /* 남색 쪽 */
+  background: #000033; /* 남색 */
   color: #fff;
   cursor: pointer;
   user-select: none;
-  transition: background 0.1s; /* 클릭 시 자연스러운 변화 */
+  transition: background 0.1s;
 }
-button:active { 
-  background: #000055; /* 클릭 시 표시 */
+button.active {
+  background: #000055; /* 버튼 누를 때 표시 */
 }
 </style>
 <script type="module">
@@ -60,7 +60,7 @@ const firebaseConfig = {
   authDomain: "mygps-11798.firebaseapp.com",
   databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mygps-11798",
-  storageBucket: "mygps-11798.firebasestorage.app",
+  storageBucket: "mygps-11798.firebasedestorage.app",
   messagingSenderId: "271371741627",
   appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
 };
@@ -192,6 +192,17 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
+  // 버튼 눌림 시 표시
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(btn => {
+    btn.addEventListener('mousedown', () => btn.classList.add('active'));
+    btn.addEventListener('mouseup', () => btn.classList.remove('active'));
+    btn.addEventListener('mouseleave', () => btn.classList.remove('active'));
+    btn.addEventListener('touchstart', () => btn.classList.add('active'));
+    btn.addEventListener('touchend', () => btn.classList.remove('active'));
+    btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
+  });
+
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
@@ -221,20 +232,6 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
-  <!-- 지도 크기 조절 (확대/축소 버튼 위) -->
-  <div class="btn-row">
-    <div class="btn-label" id="size-label">200</div>
-    <button id="size-down">▽</button>
-    <button id="size-up">△</button>
-  </div>
-
-  <!-- 지도 확대/축소 -->
-  <div class="btn-row">
-    <div class="btn-label" id="level-label">4</div>
-    <button id="zoom-in">-</button>   
-    <button id="zoom-out">+</button>  
-  </div>
-
   <!-- 투명도 -->
   <div class="btn-row">
     <div class="btn-label" id="opacity-label">1.00</div>
@@ -249,5 +246,19 @@ window.onload = function() {
     <button id="rounder-in">○</button>
   </div>
 
+  <!-- 지도 크기 조절 (확대/축소 버튼 위) -->
+  <div class="btn-row">
+    <div class="btn-label" id="size-label">200</div>
+    <button id="size-down">▽</button>
+    <button id="size-up">△</button>
+  </div>
+
+  <!-- 지도 확대/축소 -->
+  <div class="btn-row">
+    <div class="btn-label" id="level-label">4</div>
+    <button id="zoom-in">-</button>   
+    <button id="zoom-out">+</button>  
+  </div>
+  
 </body>
 </html>
