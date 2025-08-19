@@ -101,8 +101,8 @@ window.onload = function() {
 
   const radiusIncrement = 10;
   const zoomIncrement = 1;
-  const intervalDelay = 300; // 반복 속도 (ms)
-  const startDelay = 500;    // 누르고 시작 대기 시간 (ms)
+  const intervalDelay = 200; // 반복 속도 (ms) ← 요청하신대로 200ms
+  const startDelay = 500;    // 꾹 누르고 시작 대기 시간 (ms)
 
   function changeZoom(delta) { 
     window.mapLevel = Math.max(1, window.mapLevel + delta); 
@@ -116,42 +116,38 @@ window.onload = function() {
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
-    let isHolding = false;
+    let longPress = false;
 
     const startChange = () => {
-      isHolding = true;
+      longPress = true;
       interval = setInterval(() => func(delta), intervalDelay);
     };
 
-    // 클릭 시 즉시 변화 (길게 누르지 않았을 경우에만)
-    button.addEventListener('click', () => {
-      if (!isHolding) func(delta);
-      isHolding = false; // 초기화
-    });
-
-    // 누르고 있으면 일정 시간 후 반복
+    // 마우스 이벤트
     button.addEventListener('mousedown', () => {
+      longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
     button.addEventListener('mouseup', () => {
       clearTimeout(timeout);
       clearInterval(interval);
-      isHolding = false;
+      if (!longPress) func(delta);  // 짧게 눌렀을 때 실행
     });
     button.addEventListener('mouseleave', () => {
       clearTimeout(timeout);
       clearInterval(interval);
-      isHolding = false;
     });
 
+    // 터치 이벤트
     button.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
     button.addEventListener('touchend', () => {
       clearTimeout(timeout);
       clearInterval(interval);
-      isHolding = false;
+      if (!longPress) func(delta);  // 짧게 탭했을 때 실행
     });
   }
 
