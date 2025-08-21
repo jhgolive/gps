@@ -78,10 +78,11 @@ const MAX_SIZE = 600;
 const MIN_SIZE = 100;
 
 let prevPos = null;
+let uploadTimeout = null;
 
-// 두 좌표 간 거리 계산 (위도/경도 기준 미터 단위)
+// 두 좌표 간 거리 계산 (미터 단위)
 function distance(lat1, lng1, lat2, lng2) {
-  const R = 6371000; // 지구 반경 (m)
+  const R = 6371000;
   const toRad = deg => deg * Math.PI / 180;
   const dLat = toRad(lat2 - lat1);
   const dLng = toRad(lng2 - lng1);
@@ -90,7 +91,8 @@ function distance(lat1, lng1, lat2, lng2) {
   return R * c;
 }
 
-function uploadLocation(lat, lng) {
+// 서버에 현재 위치 + 설정값 저장
+function uploadLocation(lat = 0, lng = 0) {
   set(ref(db, "location/current"), {
     lat, lng,
     level: window.mapLevel,
@@ -99,6 +101,13 @@ function uploadLocation(lat, lng) {
     mapSize: window.mapSize,
     timestamp: Date.now()
   });
+}
+
+function scheduleUpload(lat, lng, delay = 1000) {
+  if (uploadTimeout) clearTimeout(uploadTimeout);
+  uploadTimeout = setTimeout(() => {
+    uploadLocation(lat, lng);
+  }, delay);
 }
 
 window.onload = function() {
@@ -134,18 +143,22 @@ window.onload = function() {
   function changeOpacity(delta) {
     window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta));
     updateDisplays();
+    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeRadius(delta) {
     window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
     updateDisplays();
+    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeZoom(delta) {
     window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta));
     updateDisplays();
+    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeMapSize(delta) {
     window.mapSize = Math.min(MAX_SIZE, Math.max(MIN_SIZE, window.mapSize + delta));
     updateDisplays();
+    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
 
   function addHoldEvent(button, delta, func) {
@@ -200,6 +213,7 @@ window.onload = function() {
     btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
+  // GPS 위치 감지
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
@@ -212,7 +226,7 @@ window.onload = function() {
           }
         } else {
           prevPos = currentPos;
-          uploadLocation(currentPos.lat, currentPos.lng);
+          uploadLocation(currentPos.lat, currentPos.lng); // 페이지 로드 시 업로드
         }
       },
       (err) => console.error(err),
@@ -223,7 +237,7 @@ window.onload = function() {
 </script>
 </head>
 <body>
-  <div id="status-text">5GPS 업로드 중...</div>
+  <div id="status-text">GPS 업로드 중...</div>
 
   <div class="btn-row">
     <div class="btn-label" id="opacity-label">1.00</div>
