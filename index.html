@@ -60,7 +60,7 @@ const firebaseConfig = {
   authDomain: "mygps-11798.firebaseapp.com",
   databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mygps-11798",
-  storageBucket: "mygps-11798.firebasestorage.app",
+  storageBucket: "mygps-11798.firebasedestorage.app",
   messagingSenderId: "271371741627",
   appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
 };
@@ -73,26 +73,17 @@ window.borderRadius = 0;
 window.mapOpacity = 1;
 window.mapSize = 200;      
 const MAX_RADIUS = 160;
-const MIN_MOVE_METERS = 5; // 5미터 이상 이동 시만 업로드
+const MIN_MOVE = 0.00005;
 const MAX_SIZE = 600;
 const MIN_SIZE = 100;
 
 let prevPos = null;
-let uploadTimeout = null;
 
-// 두 좌표 간 거리 계산 (미터 단위)
 function distance(lat1, lng1, lat2, lng2) {
-  const R = 6371000;
-  const toRad = deg => deg * Math.PI / 180;
-  const dLat = toRad(lat2 - lat1);
-  const dLng = toRad(lng2 - lng1);
-  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
-  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  return R * c;
+  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
 
-// 서버에 현재 위치 + 설정값 저장
-function uploadLocation(lat = 0, lng = 0) {
+function uploadLocation(lat, lng) {
   set(ref(db, "location/current"), {
     lat, lng,
     level: window.mapLevel,
@@ -101,13 +92,6 @@ function uploadLocation(lat = 0, lng = 0) {
     mapSize: window.mapSize,
     timestamp: Date.now()
   });
-}
-
-function scheduleUpload(lat, lng, delay = 1000) {
-  if (uploadTimeout) clearTimeout(uploadTimeout);
-  uploadTimeout = setTimeout(() => {
-    uploadLocation(lat, lng);
-  }, delay);
 }
 
 window.onload = function() {
@@ -143,22 +127,18 @@ window.onload = function() {
   function changeOpacity(delta) {
     window.mapOpacity = Math.min(1, Math.max(0.1, window.mapOpacity + delta));
     updateDisplays();
-    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeRadius(delta) {
     window.borderRadius = Math.min(MAX_RADIUS, Math.max(0, window.borderRadius + delta));
     updateDisplays();
-    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeZoom(delta) {
     window.mapLevel = Math.min(14, Math.max(1, window.mapLevel + delta));
     updateDisplays();
-    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
   function changeMapSize(delta) {
     window.mapSize = Math.min(MAX_SIZE, Math.max(MIN_SIZE, window.mapSize + delta));
     updateDisplays();
-    scheduleUpload(prevPos?.lat, prevPos?.lng, 1000);
   }
 
   function addHoldEvent(button, delta, func) {
@@ -213,21 +193,18 @@ window.onload = function() {
     btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
-  // GPS 위치 감지
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
-        const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         if(prevPos){
-          const moveDist = distance(prevPos.lat, prevPos.lng, currentPos.lat, currentPos.lng);
-          if(moveDist >= MIN_MOVE_METERS){
-            prevPos = currentPos;
-            uploadLocation(currentPos.lat, currentPos.lng);
+          const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+          if(moveDist >= MIN_MOVE){
+            prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
           }
         } else {
-          prevPos = currentPos;
-          uploadLocation(currentPos.lat, currentPos.lng); // 페이지 로드 시 업로드
+          prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         }
+        uploadLocation(pos.coords.latitude, pos.coords.longitude);
       },
       (err) => console.error(err),
       { enableHighAccuracy: true }
@@ -264,3 +241,5 @@ window.onload = function() {
   </div>
 </body>
 </html>
+
+
