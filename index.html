@@ -60,7 +60,7 @@ const firebaseConfig = {
   authDomain: "mygps-11798.firebaseapp.com",
   databaseURL: "https://mygps-11798-default-rtdb.asia-southeast1.firebasedatabase.app",
   projectId: "mygps-11798",
-  storageBucket: "mygps-11798.firebasedestorage.app",
+  storageBucket: "mygps-11798.firebasestorage.app",
   messagingSenderId: "271371741627",
   appId: "1:271371741627:web:642901f43c5ad57d80bc9e"
 };
@@ -73,14 +73,21 @@ window.borderRadius = 0;
 window.mapOpacity = 1;
 window.mapSize = 200;      
 const MAX_RADIUS = 160;
-const MIN_MOVE = 0.00005;
+const MIN_MOVE_METERS = 5; // 5미터 이상 이동 시만 업로드
 const MAX_SIZE = 600;
 const MIN_SIZE = 100;
 
 let prevPos = null;
 
+// 두 좌표 간 거리 계산 (위도/경도 기준 미터 단위)
 function distance(lat1, lng1, lat2, lng2) {
-  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
+  const R = 6371000; // 지구 반경 (m)
+  const toRad = deg => deg * Math.PI / 180;
+  const dLat = toRad(lat2 - lat1);
+  const dLng = toRad(lng2 - lng1);
+  const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) * Math.sin(dLng/2)**2;
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
 }
 
 function uploadLocation(lat, lng) {
@@ -196,15 +203,17 @@ window.onload = function() {
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
       (pos) => {
+        const currentPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
         if(prevPos){
-          const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
-          if(moveDist >= MIN_MOVE){
-            prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          const moveDist = distance(prevPos.lat, prevPos.lng, currentPos.lat, currentPos.lng);
+          if(moveDist >= MIN_MOVE_METERS){
+            prevPos = currentPos;
+            uploadLocation(currentPos.lat, currentPos.lng);
           }
         } else {
-          prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          prevPos = currentPos;
+          uploadLocation(currentPos.lat, currentPos.lng);
         }
-        uploadLocation(pos.coords.latitude, pos.coords.longitude);
       },
       (err) => console.error(err),
       { enableHighAccuracy: true }
@@ -214,7 +223,7 @@ window.onload = function() {
 </script>
 </head>
 <body>
-  <div id="status-text">GPS 업로드 중...</div>
+  <div id="status-text">5GPS 업로드 중...</div>
 
   <div class="btn-row">
     <div class="btn-label" id="opacity-label">1.00</div>
@@ -241,6 +250,3 @@ window.onload = function() {
   </div>
 </body>
 </html>
-
-
-
