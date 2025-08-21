@@ -1,183 +1,137 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <meta charset="utf-8">
-  <title>GPS 업로드</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-
-  <!-- 구글 지도 API (본인 API 키 넣기) -->
-  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyD8swteRAgf-r_tS_uncv_IWJKcGghanrY"></script>
-
-  <!-- Firebase SDK -->
-  <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
-    import { getDatabase, ref, set } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-database.js";
-
-    // 🔹 Firebase 설정 (본인 프로젝트 정보 넣기)
-    const firebaseConfig = {
-      apiKey: "YOUR_FIREBASE_API_KEY",
-      authDomain: "YOUR_PROJECT.firebaseapp.com",
-      databaseURL: "https://YOUR_PROJECT.firebaseio.com",
-      projectId: "YOUR_PROJECT",
-      storageBucket: "YOUR_PROJECT.appspot.com",
-      messagingSenderId: "SENDER_ID",
-      appId: "APP_ID"
-    };
-
-    const app = initializeApp(firebaseConfig);
-    const db = getDatabase(app);
-
-    let map, marker;
-
-    // 구글맵 라이트 모드 스타일
-    const lightModeStyle = [];
-
-    // 구글맵 다크 모드 스타일
-    const darkModeStyle = [
-      { elementType: "geometry", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.stroke", stylers: [{ color: "#242f3e" }] },
-      { elementType: "labels.text.fill", stylers: [{ color: "#746855" }] },
-      {
-        featureType: "road",
-        elementType: "geometry",
-        stylers: [{ color: "#38414e" }]
-      },
-      {
-        featureType: "water",
-        elementType: "geometry",
-        stylers: [{ color: "#17263c" }]
-      }
-    ];
-
-    // 지도 초기화
-    function initMap(lat = 37.5665, lng = 126.9780) {
-      const center = { lat, lng };
-      map = new google.maps.Map(document.getElementById("map"), {
-        zoom: 14,
-        center,
-        styles: lightModeStyle
-      });
-
-      marker = new google.maps.Marker({
-        position: center,
-        map: map,
-        title: "내 위치"
-      });
-    }
-
-    // GPS 업로드
-    function uploadLocation() {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition((pos) => {
-          const lat = pos.coords.latitude;
-          const lng = pos.coords.longitude;
-
-          // DB 업로드
-          set(ref(db, "gps"), {
-            lat: lat,
-            lng: lng,
-            timestamp: Date.now()
-          });
-
-          // 지도 위치 갱신
-          const newPos = { lat, lng };
-          map.setCenter(newPos);
-          marker.setPosition(newPos);
-
-          console.log("업로드됨:", lat, lng);
-        });
-      } else {
-        alert("GPS를 지원하지 않습니다.");
-      }
-    }
-
-    // 버튼 이벤트
-    window.onload = () => {
-      initMap();
-
-      // 페이지 로드될 때 첫 업로드
-      uploadLocation();
-
-      // 5초마다 위치 업로드
-      setInterval(uploadLocation, 5000);
-
-      // 라이트 모드 버튼
-      document.getElementById("lightBtn").addEventListener("click", () => {
-        document.body.className = "light";
-        map.setOptions({ styles: lightModeStyle });
-      });
-
-      // 다크 모드 버튼
-      document.getElementById("darkBtn").addEventListener("click", () => {
-        document.body.className = "dark";
-        map.setOptions({ styles: darkModeStyle });
-      });
-    };
-  </script>
-
-  <style>
-    body {
-      font-family: sans-serif;
-      margin: 0;
-      padding: 10px;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      transition: background 0.3s, color 0.3s;
-    }
-    #map {
-      width: 100%;
-      height: 70vh;
-      margin-bottom: 10px;
-      border-radius: 10px;
-    }
-    .btn-group {
-      display: flex;
-      gap: 10px;
-    }
-    button {
-      padding: 10px 20px;
-      font-size: 16px;
-      border: none;
-      border-radius: 8px;
-      cursor: pointer;
-    }
-
-    /* 라이트 모드 */
-    body.light {
-      background: #ffffff;
-      color: #000000;
-    }
-    body.light button {
-      background: #333;
-      color: #fff;
-    }
-    body.light button:hover {
-      background: #555;
-    }
-
-    /* 다크 모드 */
-    body.dark {
-      background: #121212;
-      color: #e0e0e0;
-    }
-    body.dark button {
-      background: #f1f1f1;
-      color: #000;
-    }
-    body.dark button:hover {
-      background: #ddd;
-    }
-  </style>
+<meta charset="utf-8">
+<title>GPS 업로드</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<style>
+  body {
+    margin: 0;
+    padding: 10px;
+    font-family: sans-serif;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f5f5f5;
+  }
+  h1 {
+    font-size: 20px;
+    margin-bottom: 15px;
+  }
+  .btn-row {
+    display: flex;
+    align-items: center;
+    margin: 8px 0;
+  }
+  .btn-label {
+    width: 70px;
+    font-size: 14px;
+    margin-right: 8px;
+  }
+  button {
+    padding: 6px 12px;
+    margin: 0 3px;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    background: #007bff;
+    color: #fff;
+    transition: background 0.2s;
+  }
+  button:hover {
+    background: #0056b3;
+  }
+</style>
 </head>
-<body class="light">
-  <h2>GPS 업로드 페이지</h2>
-  <div id="map"></div>
+<body>
+  <h1>GPS 업로드 조정</h1>
 
-  <div class="btn-group">
-    <button id="lightBtn">라이트 모드</button>
-    <button id="darkBtn">다크 모드</button>
+  <div class="btn-row">
+    <div class="btn-label">줌</div>
+    <button id="zoomInBtn">+</button>
+    <button id="zoomOutBtn">-</button>
   </div>
+
+  <div class="btn-row">
+    <div class="btn-label">투명도</div>
+    <button id="opacityUpBtn">+</button>
+    <button id="opacityDownBtn">-</button>
+  </div>
+
+  <div class="btn-row">
+    <div class="btn-label">크기</div>
+    <button id="sizeUpBtn">+</button>
+    <button id="sizeDownBtn">-</button>
+  </div>
+
+  <div class="btn-row">
+    <div class="btn-label">테마</div>
+    <button id="lightBtn">☀️ 라이트</button>
+    <button id="darkBtn">🌙 다크</button>
+  </div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-app.js";
+import { getDatabase, ref, set, get } from "https://www.gstatic.com/firebasejs/12.1.0/firebase-database.js";
+
+// ✅ Firebase 설정
+const firebaseConfig = {
+  apiKey: "YOUR_API_KEY",
+  authDomain: "YOUR_PROJECT.firebaseapp.com",
+  databaseURL: "https://YOUR_PROJECT.firebaseio.com",
+  projectId: "YOUR_PROJECT",
+  storageBucket: "YOUR_PROJECT.appspot.com",
+  messagingSenderId: "SENDER_ID",
+  appId: "APP_ID"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// 현재 값 저장용
+let mapLevel = 3;
+let opacity = 1;
+let size = 100;
+
+// 초기값 로드
+async function loadSettings() {
+  const snap = await get(ref(db, "location/settings"));
+  if (snap.exists()) {
+    const data = snap.val();
+    mapLevel = data.mapLevel ?? 3;
+    opacity = data.opacity ?? 1;
+    size = data.size ?? 100;
+  }
+}
+loadSettings();
+
+// 업로드 함수
+function uploadSettings() {
+  set(ref(db, "location/settings"), {
+    mapLevel,
+    opacity,
+    size
+  });
+}
+
+// 버튼 이벤트
+document.getElementById("zoomInBtn").onclick = () => { mapLevel++; uploadSettings(); };
+document.getElementById("zoomOutBtn").onclick = () => { mapLevel--; uploadSettings(); };
+document.getElementById("opacityUpBtn").onclick = () => { opacity = Math.min(1, opacity + 0.1); uploadSettings(); };
+document.getElementById("opacityDownBtn").onclick = () => { opacity = Math.max(0, opacity - 0.1); uploadSettings(); };
+document.getElementById("sizeUpBtn").onclick = () => { size += 10; uploadSettings(); };
+document.getElementById("sizeDownBtn").onclick = () => { size = Math.max(10, size - 10); uploadSettings(); };
+
+// ✅ 테마 버튼
+document.getElementById("lightBtn").onclick = () => {
+  set(ref(db, "location/theme"), { value: "light" });
+};
+document.getElementById("darkBtn").onclick = () => {
+  set(ref(db, "location/theme"), { value: "dark" });
+};
+</script>
 </body>
 </html>
-
