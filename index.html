@@ -94,9 +94,9 @@ function uploadLocation(lat, lng) {
   });
 }
 
-// ✅ 다크모드 값 업로드 함수
-function setDarkMode(value) {
-  set(ref(db, "location/settings/darkMode"), value);
+// ✅ 모드 업로드 (0=일반,1=다크,2=투명)
+function setMode(value) {
+  set(ref(db, "location/settings/mode"), value);
 }
 
 window.onload = function() {
@@ -198,9 +198,19 @@ window.onload = function() {
     btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
-  // ✅ Dark Mode 버튼 이벤트 등록
-  document.getElementById("dark-on").addEventListener("click", () => setDarkMode(true));
-  document.getElementById("dark-off").addEventListener("click", () => setDarkMode(false));
+  // ✅ 모드 버튼
+  let currentMode = 0; // 0=일반,1=다크,2=투명
+  const modeBtn1 = document.getElementById("dark-off");
+  const modeBtn2 = document.getElementById("dark-on");
+
+  modeBtn1.addEventListener("click", () => {
+    currentMode = (currentMode + 1) % 3; // 일반->다크->투명
+    setMode(currentMode);
+  });
+  modeBtn2.addEventListener("click", () => {
+    currentMode = (currentMode + 2) % 3; // 투명->다크->일반
+    setMode(currentMode);
+  });
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
@@ -225,9 +235,8 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
-  <!-- ✅ 다크모드 ON/OFF 버튼 추가 -->
   <div class="btn-row">
-    <div class="btn-label">Dark</div>
+    <div class="btn-label">Mode</div>
     <button id="dark-off">★</button>
     <button id="dark-on">☆</button>
   </div>
@@ -257,5 +266,3 @@ window.onload = function() {
   </div>
 </body>
 </html>
-
-
