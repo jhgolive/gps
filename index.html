@@ -48,7 +48,7 @@ button {
   transition: background 0.1s;
 }
 button.active {
-  background: #3333ff; /* 밝은 파랑으로 통일 */
+  background: #3333ff;
 }
 </style>
 <script type="module">
@@ -79,7 +79,6 @@ const MIN_SIZE = 100;
 
 let prevPos = null;
 
-// GPS 업로드 함수
 function uploadLocation(lat, lng) {
   set(ref(db, "location/current"), {
     lat, lng,
@@ -91,7 +90,6 @@ function uploadLocation(lat, lng) {
   });
 }
 
-// 모드 전환 (0: 일반, 1: 다크, 2: 투명)
 let modeIndex = 0;
 function toggleMode(isLeftButton) {
   if (isLeftButton) { 
@@ -102,7 +100,6 @@ function toggleMode(isLeftButton) {
   set(ref(db, "location/settings/mode"), modeIndex);
 }
 
-// 거리 계산
 function distance(lat1, lng1, lat2, lng2) {
   return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
@@ -116,7 +113,6 @@ window.onload = function() {
   const opacityDownBtn = document.getElementById('opacityDown');
   const sizeUpBtn = document.getElementById('size-up');
   const sizeDownBtn = document.getElementById('size-down');
-
   const darkOffBtn = document.getElementById("dark-off");
   const darkOnBtn = document.getElementById("dark-on");
 
@@ -155,7 +151,6 @@ window.onload = function() {
     updateDisplays();
   }
 
-  // pointer 이벤트 기반 버튼 처리 (중복 클릭 제거)
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
@@ -178,7 +173,7 @@ window.onload = function() {
       button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
-      if (!longPress) func(delta);
+      if (!longPress) func(delta); // short click only
     };
 
     button.addEventListener('pointerdown', startPress);
@@ -196,7 +191,6 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
-  // mode 버튼 클릭
   [darkOffBtn, darkOnBtn].forEach(btn => {
     btn.addEventListener("pointerdown", () => btn.classList.add('active'));
     btn.addEventListener("pointerup", () => btn.classList.remove('active'));
