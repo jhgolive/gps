@@ -155,7 +155,7 @@ window.onload = function() {
     updateDisplays();
   }
 
-  // 버튼 홀드 이벤트에 active 적용 & 중복 호출 제거
+  // pointer 이벤트 기반 버튼 처리 (중복 클릭 제거)
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
@@ -166,25 +166,25 @@ window.onload = function() {
       interval = setInterval(() => func(delta), 150);
     };
 
-    const startPress = () => {
+    const startPress = (e) => {
+      e.preventDefault();
       button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, 500);
     };
 
-    const endPress = () => {
+    const endPress = (e) => {
+      e.preventDefault();
       button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
     };
 
-    button.addEventListener('mousedown', startPress);
-    button.addEventListener('mouseup', endPress);
-    button.addEventListener('mouseleave', endPress);
-
-    button.addEventListener('touchstart', startPress);
-    button.addEventListener('touchend', endPress);
+    button.addEventListener('pointerdown', startPress);
+    button.addEventListener('pointerup', endPress);
+    button.addEventListener('pointerleave', endPress);
+    button.addEventListener('pointercancel', endPress);
   }
 
   addHoldEvent(opacityUpBtn, opacityIncrement, changeOpacity);
@@ -196,13 +196,11 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
-  // mode 버튼 클릭 시 정상 동작
+  // mode 버튼 클릭
   [darkOffBtn, darkOnBtn].forEach(btn => {
-    btn.addEventListener("mousedown", () => btn.classList.add('active'));
-    btn.addEventListener("mouseup", () => btn.classList.remove('active'));
-    btn.addEventListener("mouseleave", () => btn.classList.remove('active'));
-    btn.addEventListener("touchstart", () => btn.classList.add('active'));
-    btn.addEventListener("touchend", () => btn.classList.remove('active'));
+    btn.addEventListener("pointerdown", () => btn.classList.add('active'));
+    btn.addEventListener("pointerup", () => btn.classList.remove('active'));
+    btn.addEventListener("pointerleave", () => btn.classList.remove('active'));
   });
 
   darkOffBtn.addEventListener("click", () => toggleMode(true));
