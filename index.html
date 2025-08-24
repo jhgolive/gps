@@ -117,6 +117,9 @@ window.onload = function() {
   const sizeUpBtn = document.getElementById('size-up');
   const sizeDownBtn = document.getElementById('size-down');
 
+  const darkOffBtn = document.getElementById("dark-off");
+  const darkOnBtn = document.getElementById("dark-on");
+
   const opacityLabel = document.getElementById('opacity-label');
   const radiusLabel = document.getElementById('radius-label');
   const levelLabel = document.getElementById('level-label');
@@ -184,8 +187,7 @@ window.onload = function() {
       clearInterval(interval);
     });
 
-    button.addEventListener('touchstart', (e) => {
-      e.preventDefault();
+    button.addEventListener('touchstart', () => {
       button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
@@ -208,18 +210,16 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
-  const darkOffBtn = document.getElementById("dark-off");
-  const darkOnBtn = document.getElementById("dark-on");
-
-  // mode 버튼도 active 통일
+  // mode 버튼에도 active 적용 (홀드/클릭 통일)
   [darkOffBtn, darkOnBtn].forEach(btn => {
     btn.addEventListener("mousedown", () => btn.classList.add('active'));
     btn.addEventListener("mouseup", () => btn.classList.remove('active'));
     btn.addEventListener("mouseleave", () => btn.classList.remove('active'));
-    btn.addEventListener("touchstart", (e) => { e.preventDefault(); btn.classList.add('active'); });
+    btn.addEventListener("touchstart", () => btn.classList.add('active'));
     btn.addEventListener("touchend", () => btn.classList.remove('active'));
   });
 
+  // mode 버튼 클릭 시 정상 동작
   darkOffBtn.addEventListener("click", () => toggleMode(true));
   darkOnBtn.addEventListener("click", () => toggleMode(false));
 
