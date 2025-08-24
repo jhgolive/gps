@@ -93,19 +93,32 @@ function uploadLocation(lat, lng) {
 
 // 3단계 모드 적용 (0: 일반, 1: 다크, 2: 투명)
 let modeIndex = 0;
+
+function updateButtonStates() {
+  const darkOffBtn = document.getElementById("dark-off");
+  const darkOnBtn = document.getElementById("dark-on");
+
+  darkOffBtn.classList.toggle("active", modeIndex === 0);
+  darkOnBtn.classList.toggle("active", modeIndex === 1);
+
+  if(modeIndex === 2) { // 투명모드
+    darkOffBtn.classList.remove("active");
+    darkOnBtn.classList.remove("active");
+  }
+}
+
 function toggleMode(isLeftButton) {
   if(isLeftButton) { // ★ 버튼
-    if(modeIndex > 0) modeIndex--; // 2->1, 1->0, 0->0
+    if(modeIndex > 0) modeIndex--;
   } else { // ☆ 버튼
-    if(modeIndex < 2) modeIndex++; // 0->1, 1->2, 2->2
+    if(modeIndex < 2) modeIndex++;
   }
 
   set(ref(db, "location/settings/mode"), modeIndex);
-
-  document.getElementById("dark-off").classList.toggle("active", modeIndex === 0);
-  document.getElementById("dark-on").classList.toggle("active", modeIndex === 1);
+  updateButtonStates();
 }
 
+// 거리 계산
 function distance(lat1, lng1, lat2, lng2) {
   return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
@@ -214,6 +227,8 @@ window.onload = function() {
 
   darkOffBtn.addEventListener("click", () => toggleMode(true));
   darkOnBtn.addEventListener("click", () => toggleMode(false));
+
+  updateButtonStates(); // 초기 버튼 상태 설정
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
