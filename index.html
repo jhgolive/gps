@@ -163,6 +163,7 @@ window.onload = function() {
 
     const startPress = (e) => {
       e.preventDefault();
+      e.stopPropagation();
       button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, 500);
@@ -170,16 +171,20 @@ window.onload = function() {
 
     const endPress = (e) => {
       e.preventDefault();
+      e.stopPropagation();
       button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
-      if (!longPress) func(delta); // short click only
+      if (!longPress) func(delta);
     };
 
     button.addEventListener('pointerdown', startPress);
     button.addEventListener('pointerup', endPress);
     button.addEventListener('pointerleave', endPress);
     button.addEventListener('pointercancel', endPress);
+
+    // click 이벤트 제거 (중복 호출 방지)
+    button.addEventListener('click', (e) => e.stopPropagation());
   }
 
   addHoldEvent(opacityUpBtn, opacityIncrement, changeOpacity);
@@ -192,14 +197,15 @@ window.onload = function() {
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
   [darkOffBtn, darkOnBtn].forEach(btn => {
-    btn.addEventListener("pointerdown", () => btn.classList.add('active'));
-    btn.addEventListener("pointerup", () => btn.classList.remove('active'));
-    btn.addEventListener("pointerleave", () => btn.classList.remove('active'));
-    btn.addEventListener("pointercancel", () => btn.classList.remove('active'));
+    btn.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.add('active'); });
+    btn.addEventListener("pointerup", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
+    btn.addEventListener("pointerleave", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
+    btn.addEventListener("pointercancel", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
+    btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); });
   });
 
-  darkOffBtn.addEventListener("click", () => toggleMode(true));
-  darkOnBtn.addEventListener("click", () => toggleMode(false));
+  darkOffBtn.addEventListener("pointerup", () => toggleMode(true));
+  darkOnBtn.addEventListener("pointerup", () => toggleMode(false));
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
