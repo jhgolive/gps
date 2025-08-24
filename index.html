@@ -95,14 +95,16 @@ function uploadLocation(lat, lng) {
 let modeIndex = 0;
 function toggleMode(isLeftButton) {
   if (isLeftButton) { 
-    // ★ 버튼 → 감소
     if (modeIndex > 0) modeIndex--;
   } else { 
-    // ☆ 버튼 → 증가
     if (modeIndex < 2) modeIndex++;
   }
 
   set(ref(db, "location/settings/mode"), modeIndex);
+
+  // 화면에 표시
+  const modeSpan = document.getElementById("status-mode");
+  if(modeSpan) modeSpan.textContent = modeIndex;
 }
 
 // 거리 계산
@@ -229,7 +231,7 @@ window.onload = function() {
   <div id="status-text">GPS 업로드 중...</div>
 
   <div class="btn-row">
-    <div class="btn-label">Dark</div>
+    <div class="btn-label">Dark <span id="status-mode">0</span></div>
     <button id="dark-off">★</button>
     <button id="dark-on">☆</button>
   </div>
