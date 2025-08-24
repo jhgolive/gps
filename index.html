@@ -201,6 +201,7 @@ window.onload = function() {
     btn.addEventListener("pointerdown", () => btn.classList.add('active'));
     btn.addEventListener("pointerup", () => btn.classList.remove('active'));
     btn.addEventListener("pointerleave", () => btn.classList.remove('active'));
+    btn.addEventListener("pointercancel", () => btn.classList.remove('active'));
   });
 
   darkOffBtn.addEventListener("click", () => toggleMode(true));
