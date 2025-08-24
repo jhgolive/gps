@@ -48,7 +48,7 @@ button {
   transition: background 0.1s;
 }
 button.active {
-  background: #000088;
+  background: #3333ff; /* 밝은 파랑으로 통일 */
 }
 </style>
 <script type="module">
@@ -211,18 +211,17 @@ window.onload = function() {
   const darkOffBtn = document.getElementById("dark-off");
   const darkOnBtn = document.getElementById("dark-on");
 
-  darkOffBtn.addEventListener("click", () => {
-    darkOffBtn.classList.add('active');
-    darkOnBtn.classList.remove('active');
-    toggleMode(true);
-    setTimeout(() => darkOffBtn.classList.remove('active'), 100);
+  // mode 버튼도 active 통일
+  [darkOffBtn, darkOnBtn].forEach(btn => {
+    btn.addEventListener("mousedown", () => btn.classList.add('active'));
+    btn.addEventListener("mouseup", () => btn.classList.remove('active'));
+    btn.addEventListener("mouseleave", () => btn.classList.remove('active'));
+    btn.addEventListener("touchstart", (e) => { e.preventDefault(); btn.classList.add('active'); });
+    btn.addEventListener("touchend", () => btn.classList.remove('active'));
   });
-  darkOnBtn.addEventListener("click", () => {
-    darkOnBtn.classList.add('active');
-    darkOffBtn.classList.remove('active');
-    toggleMode(false);
-    setTimeout(() => darkOnBtn.classList.remove('active'), 100);
-  });
+
+  darkOffBtn.addEventListener("click", () => toggleMode(true));
+  darkOnBtn.addEventListener("click", () => toggleMode(false));
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
