@@ -95,13 +95,10 @@ function uploadLocation(lat, lng) {
 let modeIndex = 0;
 function toggleMode(isLeftButton) {
   if (isLeftButton) { 
-    // ★ 버튼 → 감소
     if (modeIndex > 0) modeIndex--;
   } else { 
-    // ☆ 버튼 → 증가
     if (modeIndex < 2) modeIndex++;
   }
-
   set(ref(db, "location/settings/mode"), modeIndex);
 }
 
@@ -157,33 +154,45 @@ window.onload = function() {
     updateDisplays();
   }
 
+  // 버튼 홀드 이벤트에 active 적용
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
     let longPress = false;
+
     const startChange = () => {
       longPress = true;
       interval = setInterval(() => func(delta), intervalDelay);
     };
+
     button.addEventListener('mousedown', () => {
+      button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
+
     button.addEventListener('mouseup', () => {
+      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
     });
+
     button.addEventListener('mouseleave', () => {
+      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
     });
+
     button.addEventListener('touchstart', (e) => {
       e.preventDefault();
+      button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
+
     button.addEventListener('touchend', () => {
+      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
@@ -202,8 +211,18 @@ window.onload = function() {
   const darkOffBtn = document.getElementById("dark-off");
   const darkOnBtn = document.getElementById("dark-on");
 
-  darkOffBtn.addEventListener("click", () => toggleMode(true));
-  darkOnBtn.addEventListener("click", () => toggleMode(false));
+  darkOffBtn.addEventListener("click", () => {
+    darkOffBtn.classList.add('active');
+    darkOnBtn.classList.remove('active');
+    toggleMode(true);
+    setTimeout(() => darkOffBtn.classList.remove('active'), 100);
+  });
+  darkOnBtn.addEventListener("click", () => {
+    darkOnBtn.classList.add('active');
+    darkOffBtn.classList.remove('active');
+    toggleMode(false);
+    setTimeout(() => darkOnBtn.classList.remove('active'), 100);
+  });
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
