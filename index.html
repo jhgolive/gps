@@ -79,10 +79,7 @@ const MIN_SIZE = 100;
 
 let prevPos = null;
 
-function distance(lat1, lng1, lat2, lng2) {
-  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
-}
-
+// GPS 업로드 함수
 function uploadLocation(lat, lng) {
   set(ref(db, "location/current"), {
     lat, lng,
@@ -94,9 +91,21 @@ function uploadLocation(lat, lng) {
   });
 }
 
-// ✅ 모드 업로드 (0=일반,1=다크,2=투명)
-function setMode(value) {
-  set(ref(db, "location/settings/mode"), value);
+// 3단계 모드 적용 (0: 일반, 1: 다크, 2: 투명)
+let modeIndex = 0;
+function toggleMode(isLeftButton) {
+  if(isLeftButton) modeIndex = (modeIndex + 1) % 3;
+  else modeIndex = (modeIndex + 2) % 3;
+
+  set(ref(db, "location/settings/mode"), modeIndex);
+
+  document.getElementById("dark-off").classList.toggle("active", modeIndex === 0);
+  document.getElementById("dark-on").classList.toggle("active", modeIndex === 1);
+}
+
+// 거리 계산
+function distance(lat1, lng1, lat2, lng2) {
+  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
 
 window.onload = function() {
@@ -198,19 +207,11 @@ window.onload = function() {
     btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
-  // ✅ 모드 버튼
-  let currentMode = 0; // 0=일반,1=다크,2=투명
-  const modeBtn1 = document.getElementById("dark-off");
-  const modeBtn2 = document.getElementById("dark-on");
+  const darkOffBtn = document.getElementById("dark-off");
+  const darkOnBtn = document.getElementById("dark-on");
 
-  modeBtn1.addEventListener("click", () => {
-    currentMode = (currentMode + 1) % 3; // 일반->다크->투명
-    setMode(currentMode);
-  });
-  modeBtn2.addEventListener("click", () => {
-    currentMode = (currentMode + 2) % 3; // 투명->다크->일반
-    setMode(currentMode);
-  });
+  darkOffBtn.addEventListener("click", () => toggleMode(true));
+  darkOnBtn.addEventListener("click", () => toggleMode(false));
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
@@ -236,7 +237,7 @@ window.onload = function() {
   <div id="status-text">GPS 업로드 중...</div>
 
   <div class="btn-row">
-    <div class="btn-label">Mode</div>
+    <div class="btn-label">Dark</div>
     <button id="dark-off">★</button>
     <button id="dark-on">☆</button>
   </div>
