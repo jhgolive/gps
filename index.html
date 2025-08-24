@@ -48,7 +48,7 @@ button {
   transition: background 0.1s;
 }
 button.active {
-  background: #3333ff;
+  background: #3333ff; /* 밝은 파랑으로 통일 */
 }
 </style>
 <script type="module">
@@ -79,6 +79,7 @@ const MIN_SIZE = 100;
 
 let prevPos = null;
 
+// GPS 업로드 함수
 function uploadLocation(lat, lng) {
   set(ref(db, "location/current"), {
     lat, lng,
@@ -90,6 +91,7 @@ function uploadLocation(lat, lng) {
   });
 }
 
+// 모드 전환 (0: 일반, 1: 다크, 2: 투명)
 let modeIndex = 0;
 function toggleMode(isLeftButton) {
   if (isLeftButton) { 
@@ -100,6 +102,7 @@ function toggleMode(isLeftButton) {
   set(ref(db, "location/settings/mode"), modeIndex);
 }
 
+// 거리 계산
 function distance(lat1, lng1, lat2, lng2) {
   return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
@@ -113,6 +116,7 @@ window.onload = function() {
   const opacityDownBtn = document.getElementById('opacityDown');
   const sizeUpBtn = document.getElementById('size-up');
   const sizeDownBtn = document.getElementById('size-down');
+
   const darkOffBtn = document.getElementById("dark-off");
   const darkOnBtn = document.getElementById("dark-on");
 
@@ -129,6 +133,8 @@ window.onload = function() {
   }
   updateDisplays();
 
+  const intervalDelay = 150;
+  const startDelay = 500;
   const zoomIncrement = 1;
   const radiusIncrement = 10;
   const opacityIncrement = 0.05;
@@ -151,6 +157,7 @@ window.onload = function() {
     updateDisplays();
   }
 
+  // 버튼 홀드 이벤트에 active 적용
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
@@ -158,33 +165,40 @@ window.onload = function() {
 
     const startChange = () => {
       longPress = true;
-      interval = setInterval(() => func(delta), 150);
+      interval = setInterval(() => func(delta), intervalDelay);
     };
 
-    const startPress = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    button.addEventListener('mousedown', () => {
       button.classList.add('active');
       longPress = false;
-      timeout = setTimeout(startChange, 500);
-    };
+      timeout = setTimeout(startChange, startDelay);
+    });
 
-    const endPress = (e) => {
-      e.preventDefault();
-      e.stopPropagation();
+    button.addEventListener('mouseup', () => {
       button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
-    };
+    });
 
-    button.addEventListener('pointerdown', startPress);
-    button.addEventListener('pointerup', endPress);
-    button.addEventListener('pointerleave', endPress);
-    button.addEventListener('pointercancel', endPress);
+    button.addEventListener('mouseleave', () => {
+      button.classList.remove('active');
+      clearTimeout(timeout);
+      clearInterval(interval);
+    });
 
-    // click 이벤트 제거 (중복 호출 방지)
-    button.addEventListener('click', (e) => e.stopPropagation());
+    button.addEventListener('touchstart', () => {
+      button.classList.add('active');
+      longPress = false;
+      timeout = setTimeout(startChange, startDelay);
+    });
+
+    button.addEventListener('touchend', () => {
+      button.classList.remove('active');
+      clearTimeout(timeout);
+      clearInterval(interval);
+      if (!longPress) func(delta);
+    });
   }
 
   addHoldEvent(opacityUpBtn, opacityIncrement, changeOpacity);
@@ -196,16 +210,18 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
+  // mode 버튼에도 active 적용 (홀드/클릭 통일)
   [darkOffBtn, darkOnBtn].forEach(btn => {
-    btn.addEventListener("pointerdown", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.add('active'); });
-    btn.addEventListener("pointerup", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
-    btn.addEventListener("pointerleave", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
-    btn.addEventListener("pointercancel", (e) => { e.preventDefault(); e.stopPropagation(); btn.classList.remove('active'); });
-    btn.addEventListener("click", (e) => { e.preventDefault(); e.stopPropagation(); });
+    btn.addEventListener("mousedown", () => btn.classList.add('active'));
+    btn.addEventListener("mouseup", () => btn.classList.remove('active'));
+    btn.addEventListener("mouseleave", () => btn.classList.remove('active'));
+    btn.addEventListener("touchstart", () => btn.classList.add('active'));
+    btn.addEventListener("touchend", () => btn.classList.remove('active'));
   });
 
-  darkOffBtn.addEventListener("pointerup", () => toggleMode(true));
-  darkOnBtn.addEventListener("pointerup", () => toggleMode(false));
+  // mode 버튼 클릭 시 정상 동작
+  darkOffBtn.addEventListener("click", () => toggleMode(true));
+  darkOnBtn.addEventListener("click", () => toggleMode(false));
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
