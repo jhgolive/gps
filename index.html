@@ -48,7 +48,7 @@ button {
   transition: background 0.1s;
 }
 button.active {
-  background: #3333ff; /* 밝은 파랑으로 통일 */
+  background: #000088;
 }
 </style>
 <script type="module">
@@ -72,14 +72,17 @@ window.mapLevel = 4;
 window.borderRadius = 0; 
 window.mapOpacity = 1;
 window.mapSize = 200;      
-const MAX_RADIUS = 300;
+const MAX_RADIUS = 160;
 const MIN_MOVE = 0.00005;
 const MAX_SIZE = 600;
 const MIN_SIZE = 100;
 
 let prevPos = null;
 
-// GPS 업로드 함수
+function distance(lat1, lng1, lat2, lng2) {
+  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
+}
+
 function uploadLocation(lat, lng) {
   set(ref(db, "location/current"), {
     lat, lng,
@@ -91,20 +94,9 @@ function uploadLocation(lat, lng) {
   });
 }
 
-// 모드 전환 (0: 일반, 1: 다크, 2: 투명)
-let modeIndex = 0;
-function toggleMode(isLeftButton) {
-  if (isLeftButton) { 
-    if (modeIndex > 0) modeIndex--;
-  } else { 
-    if (modeIndex < 2) modeIndex++;
-  }
-  set(ref(db, "location/settings/mode"), modeIndex);
-}
-
-// 거리 계산
-function distance(lat1, lng1, lat2, lng2) {
-  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
+// ✅ 다크모드 값 업로드 함수
+function setDarkMode(value) {
+  set(ref(db, "location/settings/darkMode"), value);
 }
 
 window.onload = function() {
@@ -116,9 +108,6 @@ window.onload = function() {
   const opacityDownBtn = document.getElementById('opacityDown');
   const sizeUpBtn = document.getElementById('size-up');
   const sizeDownBtn = document.getElementById('size-down');
-
-  const darkOffBtn = document.getElementById("dark-off");
-  const darkOnBtn = document.getElementById("dark-on");
 
   const opacityLabel = document.getElementById('opacity-label');
   const radiusLabel = document.getElementById('radius-label');
@@ -157,44 +146,33 @@ window.onload = function() {
     updateDisplays();
   }
 
-  // 버튼 홀드 이벤트에 active 적용
   function addHoldEvent(button, delta, func) {
     let interval = null;
     let timeout = null;
     let longPress = false;
-
     const startChange = () => {
       longPress = true;
       interval = setInterval(() => func(delta), intervalDelay);
     };
-
     button.addEventListener('mousedown', () => {
-      button.classList.add('active');
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
-
     button.addEventListener('mouseup', () => {
-      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
     });
-
     button.addEventListener('mouseleave', () => {
-      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
     });
-
-    button.addEventListener('touchstart', () => {
-      button.classList.add('active');
+    button.addEventListener('touchstart', (e) => {
+      e.preventDefault();
       longPress = false;
       timeout = setTimeout(startChange, startDelay);
     });
-
     button.addEventListener('touchend', () => {
-      button.classList.remove('active');
       clearTimeout(timeout);
       clearInterval(interval);
       if (!longPress) func(delta);
@@ -210,18 +188,19 @@ window.onload = function() {
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
 
-  // mode 버튼에도 active 적용 (홀드/클릭 통일)
-  [darkOffBtn, darkOnBtn].forEach(btn => {
-    btn.addEventListener("mousedown", () => btn.classList.add('active'));
-    btn.addEventListener("mouseup", () => btn.classList.remove('active'));
-    btn.addEventListener("mouseleave", () => btn.classList.remove('active'));
-    btn.addEventListener("touchstart", () => btn.classList.add('active'));
-    btn.addEventListener("touchend", () => btn.classList.remove('active'));
+  const buttons = document.querySelectorAll('button');
+  buttons.forEach(btn => {
+    btn.addEventListener('mousedown', () => btn.classList.add('active'));
+    btn.addEventListener('mouseup', () => btn.classList.remove('active'));
+    btn.addEventListener('mouseleave', () => btn.classList.remove('active'));
+    btn.addEventListener('touchstart', () => btn.classList.add('active'));
+    btn.addEventListener('touchend', () => btn.classList.remove('active'));
+    btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
   });
 
-  // mode 버튼 클릭 시 정상 동작
-  darkOffBtn.addEventListener("click", () => toggleMode(true));
-  darkOnBtn.addEventListener("click", () => toggleMode(false));
+  // ✅ Dark Mode 버튼 이벤트 등록
+  document.getElementById("dark-on").addEventListener("click", () => setDarkMode(true));
+  document.getElementById("dark-off").addEventListener("click", () => setDarkMode(false));
 
   if(navigator.geolocation){
     navigator.geolocation.watchPosition(
@@ -246,8 +225,9 @@ window.onload = function() {
 <body>
   <div id="status-text">GPS 업로드 중...</div>
 
+  <!-- ✅ 다크모드 ON/OFF 버튼 추가 -->
   <div class="btn-row">
-    <div class="btn-label">mode</div>
+    <div class="btn-label">Dark</div>
     <button id="dark-off">★</button>
     <button id="dark-on">☆</button>
   </div>
@@ -277,4 +257,5 @@ window.onload = function() {
   </div>
 </body>
 </html>
+
 
