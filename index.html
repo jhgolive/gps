@@ -209,20 +209,10 @@ window.onload = function() {
   addHoldEvent(zoomOutBtn, -zoomIncrement, changeZoom);
   addHoldEvent(sizeUpBtn, sizeIncrement, changeMapSize);
   addHoldEvent(sizeDownBtn, -sizeIncrement, changeMapSize);
-
-  // ✅ mode 버튼도 위쪽 방식으로만 적용
-  [darkOffBtn, darkOnBtn].forEach(btn => {
-    btn.addEventListener('mousedown', () => btn.classList.add('active'));
-    btn.addEventListener('mouseup', () => btn.classList.remove('active'));
-    btn.addEventListener('mouseleave', () => btn.classList.remove('active'));
-    btn.addEventListener('touchstart', () => btn.classList.add('active'));
-    btn.addEventListener('touchend', () => btn.classList.remove('active'));
-    btn.addEventListener('touchcancel', () => btn.classList.remove('active'));
-  });
-
-  // 클릭 이벤트 → mode 값 업로드
-  darkOffBtn.addEventListener("click", () => toggleMode(true));
-  darkOnBtn.addEventListener("click", () => toggleMode(false));
+  
+  // 수정: addHoldEvent 사용
+  addHoldEvent(darkOffBtn, null, () => toggleMode(true));
+  addHoldEvent(darkOnBtn, null, () => toggleMode(false));
 
   // ✅ GPS 업로드
   if(navigator.geolocation){
@@ -279,6 +269,7 @@ window.onload = function() {
   </div>
 </body>
 </html>
+
 
 
 
