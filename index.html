@@ -241,15 +241,16 @@ window.onload = function() {
     navigator.geolocation.watchPosition(
       (pos) => {
         /* 이전 위치와 비교 후 최소 이동거리 이상일 때만 업데이트 */
-        if(prevPos){
+        if (prevPos) {
           const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
-          if(moveDist >= MIN_MOVE){
+          if (moveDist >= MIN_MOVE) {
             prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+            uploadLocation(pos.coords.latitude, pos.coords.longitude); // ✅ 여기서만 업로드
           }
         } else {
           prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+          uploadLocation(pos.coords.latitude, pos.coords.longitude); // 첫 위치는 무조건 업로드
         }
-        uploadLocation(pos.coords.latitude, pos.coords.longitude);
       },
       (err) => console.error(err),
       { enableHighAccuracy: true } // 정확한 GPS 사용
@@ -299,3 +300,4 @@ window.onload = function() {
   </div>
 </body>
 </html>
+
