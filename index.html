@@ -162,6 +162,14 @@ window.onload = function() {
   }
   updateDisplays();
 
+  // 페이지 열릴 때 버튼 기본값 Firebase 업로드
+  scheduleButtonUpload({
+    opacity: window.mapOpacity,
+    borderRadius: window.borderRadius,
+    mapLevel: window.mapLevel,
+    mapSize: window.mapSize
+  });
+
   const intervalDelay = 150;
   const startDelay = 500;
   const zoomIncrement = 1;
