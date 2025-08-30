@@ -81,9 +81,23 @@ window.borderRadius = 0;
 window.mapOpacity = 1;
 window.mapSize = 200;
 
-const MIN_MOVE = 0.00005;
-
 let prevPos = null;
+
+/* 실제 거리 계산 (미터 단위) */
+function distanceMeters(lat1, lon1, lat2, lon2) {
+  const R = 6371000; // 지구 반지름 (m)
+  const toRad = x => x * Math.PI / 180;
+
+  const dLat = toRad(lat2 - lat1);
+  const dLon = toRad(lon2 - lon1);
+  const a = Math.sin(dLat/2) * Math.sin(dLat/2) +
+            Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+            Math.sin(dLon/2) * Math.sin(dLon/2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  return R * c;
+}
+
+const MIN_MOVE_METERS = 5;
 
 /* GPS 위치 업로드 */
 function uploadLocation(lat, lng) {
@@ -128,11 +142,6 @@ function toggleMode(isLeftButton) {
     if (modeIndex < 2) modeIndex++;
   }
   set(ref(db, "location/settings/mode"), modeIndex);
-}
-
-/* 거리 계산 */
-function distance(lat1, lng1, lat2, lng2) {
-  return Math.sqrt((lat2 - lat1)**2 + (lng2 - lng1)**2);
 }
 
 window.onload = function() {
@@ -280,8 +289,8 @@ window.onload = function() {
     navigator.geolocation.watchPosition(
       (pos) => {
         if (prevPos) {
-          const moveDist = distance(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
-          if (moveDist >= MIN_MOVE) {
+          const moveDist = distanceMeters(prevPos.lat, prevPos.lng, pos.coords.latitude, pos.coords.longitude);
+          if (moveDist >= MIN_MOVE_METERS) {
             prevPos = { lat: pos.coords.latitude, lng: pos.coords.longitude };
             uploadLocation(pos.coords.latitude, pos.coords.longitude);
           }
@@ -334,4 +343,3 @@ window.onload = function() {
 </div>
 </body>
 </html>
-
