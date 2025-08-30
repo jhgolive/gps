@@ -105,8 +105,7 @@ function uploadButtonValues() {
 
   if (now - lastButtonUploadTime >= BUTTON_UPLOAD_INTERVAL) {
     set(ref(db, "location/buttonValues"), {
-      ...pendingButtonData,
-      timestamp: now
+      ...pendingButtonData
     });
     lastButtonUploadTime = now;
     pendingButtonData = null;
@@ -335,3 +334,4 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
