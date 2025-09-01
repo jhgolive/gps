@@ -162,6 +162,9 @@ window.onload = function() {
   const levelLabel = document.getElementById('level-label');
   const sizeLabel = document.getElementById('size-label');
 
+  const routeStandardBtn = document.getElementById("route-standard");
+  const routeStraightBtn = document.getElementById("route-straight");
+
   function updateDisplays() {
     opacityLabel.textContent = window.mapOpacity.toFixed(2);
     radiusLabel.textContent = window.borderRadius;
@@ -284,6 +287,14 @@ window.onload = function() {
   addHoldEvent(darkOffBtn, null, () => toggleMode(true));
   addHoldEvent(darkOnBtn, null, () => toggleMode(false));
 
+  routeStandardBtn.addEventListener("click", () => {
+  set(ref(db, "location/settings/routeMode"), 0);
+  });
+  
+  routeStraightBtn.addEventListener("click", () => {
+    set(ref(db, "location/settings/routeMode"), 1);
+  });
+
   /* GPS 시작 */
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
@@ -325,6 +336,12 @@ window.onload = function() {
 </div>
 
 <div class="btn-row">
+  <div class="btn-label">route</div>
+  <button id="route-standard">경로</button>
+  <button id="route-straight">직선</button>
+</div>
+
+<div class="btn-row">
   <div class="btn-label">mode</div>
   <button id="dark-off">★</button>
   <button id="dark-on">☆</button>
@@ -343,4 +360,5 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
