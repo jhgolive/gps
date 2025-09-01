@@ -144,6 +144,14 @@ function toggleMode(isLeftButton) {
   set(ref(db, "location/settings/mode"), modeIndex);
 }
 
+routeStandardBtn.addEventListener("click", () => {
+set(ref(db, "location/settings/routeMode"), 0);
+});
+
+routeStraightBtn.addEventListener("click", () => {
+  set(ref(db, "location/settings/routeMode"), 1);
+});
+
 window.onload = function() {
   const zoomInBtn = document.getElementById('zoom-in');
   const zoomOutBtn = document.getElementById('zoom-out');
@@ -287,14 +295,6 @@ window.onload = function() {
   addHoldEvent(darkOffBtn, null, () => toggleMode(true));
   addHoldEvent(darkOnBtn, null, () => toggleMode(false));
 
-  routeStandardBtn.addEventListener("click", () => {
-  set(ref(db, "location/settings/routeMode"), 0);
-  });
-  
-  routeStraightBtn.addEventListener("click", () => {
-    set(ref(db, "location/settings/routeMode"), 1);
-  });
-
   /* GPS 시작 */
   if (navigator.geolocation) {
     navigator.geolocation.watchPosition(
@@ -360,6 +360,7 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
 
 
