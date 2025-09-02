@@ -141,6 +141,7 @@ function toggleMode(isLeftButton) {
   } else {
     if (modeIndex < 2) modeIndex++;
   }
+  document.getElementById("mode-label").textContent = modeIndex;
   set(ref(db, "location/settings/mode"), modeIndex);
 }
 
@@ -152,6 +153,7 @@ function togglerouteMode(isLeftButton) {
   } else {
     if (routemodeIndex < 2) routemodeIndex++;
   }
+  document.getElementById("route-label").textContent = routemodeIndex;
   set(ref(db, "location/settings/routeMode"), routemodeIndex);
 }
 
@@ -342,13 +344,13 @@ window.onload = function() {
 </div>
 
 <div class="btn-row">
-  <div class="btn-label">mode</div>
+  <div class="btn-label">mode <span id="mode-label">1</span></div>
   <button id="dark-off">○</button>
   <button id="dark-on">◐</button>
 </div>
 
 <div class="btn-row">
-  <div class="btn-label">route</div>
+  <div class="btn-label">route <span id="route-label">1</span></div>
   <button id="route-standard">ㄹ</button>
   <button id="route-straight">ㅡ</button>
 </div>
@@ -366,6 +368,7 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
 
 
