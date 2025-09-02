@@ -44,9 +44,6 @@ button {
   width: 80px;
   height: 40px;
   font-size: 25px;
-  display: flex;             /* Flex 컨테이너로 변경 */
-  justify-content: center;   /* 가로 중앙 */
-  align-items: center;       /* 세로 중앙 */
   border: none;
   border-radius: 12px;
   background: #000033;
@@ -346,8 +343,8 @@ window.onload = function() {
 
 <div class="btn-row">
   <div class="btn-label">mode</div>
-  <button id="dark-off">☼</button>
-  <button id="dark-on">☾</button>
+  <button id="dark-off"><span style="align-items:center;">☼</span></button>
+  1<button id="dark-on">☾</button>
 </div>
 
 <div class="btn-row">
@@ -369,6 +366,7 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
 
 
