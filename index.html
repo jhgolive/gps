@@ -194,6 +194,10 @@ window.onload = function() {
     mapSize: window.mapSize
   });
 
+  // 페이지 열릴 때 모드와 경로모드도 Firebase에 초기화
+  set(ref(db, "location/settings/mode"), modeIndex);
+  set(ref(db, "location/settings/routeMode"), routemodeIndex);
+
   const intervalDelay = 150;
   const startDelay = 500;
   const zoomIncrement = 1;
@@ -368,6 +372,7 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
 
 
