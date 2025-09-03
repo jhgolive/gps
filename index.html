@@ -134,7 +134,7 @@ function scheduleButtonUpload(newData) {
 }
 
 /* 모드 전환 (즉시 업로드) */
-let modeIndex = 0;
+let modeIndex = 1;
 function toggleMode(isLeftButton) {
   if (isLeftButton) {
     if (modeIndex > 0) modeIndex--;
@@ -348,7 +348,7 @@ window.onload = function() {
 </div>
 
 <div class="btn-row">
-  <div class="btn-label">mode <span id="mode-label">0</span></div>
+  <div class="btn-label">mode <span id="mode-label">1</span></div>
   <button id="dark-off">○</button>
   <button id="dark-on">◐</button>
 </div>
@@ -372,6 +372,7 @@ window.onload = function() {
 </div>
 </body>
 </html>
+
 
 
 
