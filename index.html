@@ -366,16 +366,16 @@ window.onload = function() {
 	  isHiddenText = !isHiddenText;
 	  if (isHiddenText) {
 	    setControl({ hiddenText: true });
-	    textToggleBtn.textContent = "숨김";
+	    textToggleBtn.textContent = "가";
 	  } else {
 	    setControl({ hiddenText: false });
-	    textToggleBtn.textContent = "가";
+	    textToggleBtn.textContent = "";
 	  }
 	});
 
 	// 버튼 UI 초기화
 	  toggleBtn.textContent = isPlaying ? "‖" : "▶";
-	  textToggleBtn.textContent = isHiddenText ? "숨김" : "가";
+	  textToggleBtn.textContent = isHiddenText ? "가" : "";
 	
 	  // Firebase 초기값 업로드
 	  setControl({ playing: isPlaying, hiddenText: isHiddenText });
