@@ -359,26 +359,26 @@ window.onload = function() {
 	  }
 	});
 
-	/* 스크롤 방향 전환 */
-	let isReverse = false;
-	const rewindBtn = document.getElementById("rewind-btn");
-	addHoldEvent(rewindBtn, null, () => {
-	  isReverse = !isReverse;
-	  if (isReverse) {
-	    setControl({ reverse: true });
-	    rewindBtn.textContent = ">>";
+	/* 글자 숨김 토글 */
+	let isHiddenText = false;
+	const textToggleBtn = document.getElementById("hidden-btn");
+	addHoldEvent(textToggleBtn, null, () => {
+	  isHiddenText = !isHiddenText;
+	  if (isHiddenText) {
+	    setControl({ hiddenText: true });
+	    textToggleBtn.textContent = "숨김";
 	  } else {
-	    setControl({ reverse: false });
-	    rewindBtn.textContent = "<<";
+	    setControl({ hiddenText: false });
+	    textToggleBtn.textContent = "가";
 	  }
 	});
 
 	// 버튼 UI 초기화
 	  toggleBtn.textContent = isPlaying ? "‖" : "▶";
-	  rewindBtn.textContent = isReverse ? ">>" : "<<";
+	  textToggleBtn.textContent = isHiddenText ? "숨김" : "가";
 	
 	  // Firebase 초기값 업로드
-	  setControl({ playing: isPlaying, reverse: isReverse });
+	  setControl({ playing: isPlaying, hiddenText: isHiddenText });
 		
 	// ------------------- 뉴스 글자 크기 조절 -------------------
   let currentFontSize = 44; // 기본 글자 크기(px)
@@ -452,7 +452,7 @@ window.onload = function() {
 <div class="btn-row">
   <div class="btn-label">재생<br>방향</div>
   <button id="toggle-play-btn">▶</button>
-  <button id="rewind-btn"><<</button>
+  <button id="hidden-btn">가</button>
 </div>
 </body>
 </html>
